@@ -1,6 +1,6 @@
 ---
 title: "Prediction Challenge"
-author: "John Doe"
+author: "Us 5"
 date: "23.06.2022"
 output: 
   pdf_document:
