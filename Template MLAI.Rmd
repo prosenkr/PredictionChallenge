@@ -1,0 +1,253 @@
+---
+title: "Template Prediction Challenge"
+author: "John Doe"
+date: "23.06.2022"
+output: 
+  pdf_document:
+  #  toc: true
+    number_sections: true
+header-includes:
+- \usepackage{graphicx}
+- \usepackage{float}
+- \usepackage{amsmath}
+- \usepackage{dcolumn}
+- \usepackage{biblatex}
+#bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, message = FALSE, warning = FALSE)
+library( tidyverse )
+library( tidybayes )
+library( funModeling ) 
+library( scico ) 
+library( ggrepel )
+library( scico )
+library( ggthemes )
+library( patchwork )
+library( haven )
+library( tibble )
+library( knitr )
+library( tinytex )
+library( sandwich )
+library( lmtest )
+library( stargazer )
+library(MASS) # For Boston data set
+library(tidymodels)
+library(ISLR)
+library(GGally)
+library(broom)
+library(dotwhisker)
+library(performance)
+library(funModeling)
+
+options(digits = 3)
+```
+
+
+\newpage
+\tableofcontents
+
+\newpage
+\setlength{\parindent}{2em}
+\baselineskip=1.5\baselineskip
+\section{Introduction}
+
+\textbf{A short Introduction to LaTex}: https://de.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin gravida aliquam sapien eu feugiat. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nullam elementum lorem non tortor accumsan luctus. Suspendisse placerat elit vel ultrices convallis. Sed molestie ullamcorper interdum. In pellentesque elit et est pellentesque ullamcorper. Sed et cursus dui. Mauris erat quam, vestibulum ac hendrerit id, placerat et nisi. Integer sit amet pretium orci, ut tempus metus. Mauris auctor imperdiet molestie. Donec imperdiet orci augue, nec porttitor neque varius vitae. Proin eget metus vitae dolor commodo venenatis. Morbi eleifend justo eu convallis semper. Praesent massa nisi, tincidunt ac est nec, ultrices varius eros.
+
+
+Phasellus rhoncus efficitur sodales. Nam non magna tempor tellus semper viverra vel sit amet augue. Sed erat arcu, sollicitudin vel tincidunt ut, tristique at neque. Mauris quis porttitor nulla. Nullam lacinia scelerisque suscipit. Proin bibendum arcu neque, vitae interdum nisi efficitur non. Duis ut ante nec massa malesuada mollis. Vivamus semper ut leo eu gravida. Proin ultricies turpis vel tincidunt volutpat. Vivamus consequat eget urna sagittis sollicitudin. Quisque quam sem, posuere et mauris a, consequat porta sem.
+
+\section{Methods}
+Nam venenatis arcu et tortor lobortis, id rutrum justo venenatis. Ut sed enim consequat ligula mattis rutrum. Donec eleifend fermentum consectetur. Cras facilisis euismod augue, vel tincidunt massa faucibus a. Sed dolor arcu, pellentesque at diam id, pulvinar venenatis felis. Pellentesque id nunc ut nunc imperdiet bibendum. Vivamus scelerisque mauris elit, eu porta urna rutrum ac. Ut felis nunc, iaculis et tempus sit amet, vulputate sit amet nisi. Quisque maximus eu sapien vitae imperdiet. Praesent blandit aliquam massa, vitae bibendum velit facilisis at. Donec erat elit, molestie quis vulputate quis, porttitor malesuada turpis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec vehicula viverra sapien, non interdum ligula. Proin laoreet, orci eget tempus gravida, tellus ante pulvinar ligula, eget lacinia mauris leo vel felis. Suspendisse eu nisl est. Aenean sit amet suscipit odio.
+
+
+
+
+How to compute a numeric list:
+\begin{enumerate} 
+  \item Number 1 on your list
+  \item Number 2 on your list
+\end{enumerate}
+
+\subsection{Study Design} 
+
+How to compute a list
+\begin{itemize}
+\item Bulletpoint 1
+\item Bulletpoint 2
+\end{itemize}
+
+\subsection{Method}
+Load data
+
+```{r}
+data(Boston)
+head(Boston)
+??Boston        # get help
+```
+
+
+Exploratory data analysis
+
+```{r}
+basic_eda <- function(data)
+{
+  glimpse(data)
+  print(status(data))
+  freq(data) 
+  print(profiling_num(data))
+  plot_num(data)
+  describe(data)
+}
+```
+
+```{r}
+fit <- lm(medv ~ lstat, data = Boston)
+summary(fit)
+lm_spec <- linear_reg() %>%   # linear regression
+  set_mode("regression") %>%  # regression (or classification)
+  set_engine("lm")            # method of estimation, here, ordinary least squares
+show_engines("linear_reg")
+```
+
+```{r}
+lm_fit <- lm_spec %>%
+  fit(medv ~ lstat, data = Boston)
+lm_fit
+```
+
+```{r}
+lm_fit %>% 
+  pluck("fit") %>%
+  summary()
+```
+
+
+
+```{r}
+tidy(lm_fit)
+```
+
+and `glance()` can be used to *extract the model statistics*.
+
+```{r}
+glance(lm_fit)
+```
+
+```{r}
+predict(lm_fit, new_data = Boston)
+```
+
+```{r}
+lm_fit2 <- lm_spec %>% 
+  fit(medv ~ lstat + age, data = Boston)
+lm_fit2
+```
+
+Everything else works the same. From extracting parameter estimates
+
+```{r}
+tidy(lm_fit2)
+lm_fit2 %>% 
+  pluck("fit") %>%
+  summary()
+```
+
+to predicting new values
+
+```{r}
+predict(lm_fit2, new_data = Boston)
+```
+
+
+
+\section{Results}
+Quisque ultricies varius placerat. Cras ut leo sit amet dolor vestibulum consequat. Nullam placerat lorem eget ante aliquam porta ut vel tortor. Suspendisse imperdiet magna id lectus dignissim, eget commodo ligula semper. Etiam ullamcorper, mauris eu ultrices dapibus, nulla justo tincidunt lacus, rhoncus congue risus leo rutrum magna. Donec et augue dui. Ut bibendum porttitor massa, eu venenatis est tincidunt eu. Ut vel tincidunt lectus.
+
+\subsection{Plots}
+
+\textbf{Short introduction to the ggplot2 package with further links to more detailed instructions}: https://ggplot2.tidyverse.org
+
+\section{Discussion}
+In venenatis porta odio, quis egestas neque commodo sed. Ut et elit ut nibh accumsan ornare sit amet a diam. Vestibulum imperdiet ut diam at porta. Vivamus malesuada egestas ligula vel molestie. Cras congue nibh non felis scelerisque, sed porta ex sollicitudin. Nunc dignissim facilisis libero luctus auctor. Nulla cursus velit at efficitur luctus. Morbi fringilla, nisi in aliquam sodales, metus ligula aliquet ipsum, nec fermentum dolor ipsum et erat. Nam blandit sapien ipsum, vitae euismod tortor pellentesque eget. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent tempus nulla nec turpis pulvinar pellentesque. Vestibulum a purus eu libero efficitur varius ut ut urna. Curabitur et tellus lobortis, facilisis augue ornare, sagittis lacus. Nullam ac orci at enim fermentum consequat iaculis quis ante.
+
+\newpage
+\section{Evaluation of examination results}
+Please indicate if you want to receive a the same grade or individual grades. Everyone in the group has to confirm your choice and sign this document.
+
+\begin{enumerate}
+
+\item \textbf{Same grade: We confirm that each student from our group has     contributed equally to the project.}
+
+
+  \begin{tabular}{@{}p{7cm}p{5cm}@{}}
+  \\
+  \hrulefill \\
+  (Name, matriculation No.) \\
+  \\
+  \hrulefill \\
+  (Name, matriculation No.) \\
+  \\
+  \hrulefill \\
+  (Name, matriculation No.) \\
+  \\
+  \hrulefill \\
+  (Name, matriculation No.) \\
+  \end{tabular}
+\\
+
+
+\item \textbf{Individual grades: We request individual grades for each student from our group.}
+
+Please describe \textbf{in detail} the contributions of each group member in the following:
+
+
+\textit{Student 1:}
+    
+  \begin{tabular}{@{}p{7cm}p{5cm}@{}}
+     \\
+     \hrulefill \\
+      (Signature)
+   \end{tabular}
+ \newline 
+ 
+\textit{Student 2:}
+  
+    \begin{tabular}{@{}p{7cm}p{5cm}@{}}
+     \\
+     \hrulefill \\
+      (Signature)
+   \end{tabular}
+ \newline 
+ 
+\textit{Student 3:}
+
+    \begin{tabular}{@{}p{7cm}p{5cm}@{}}
+     \\
+     \hrulefill \\
+      (Signature)
+   \end{tabular}
+\newline
+
+\textit{Student 4:}
+  
+    \begin{tabular}{@{}p{7cm}p{5cm}@{}}
+     \\
+     \hrulefill \\
+      (Signature)
+   \end{tabular}
+
+
+\end{enumerate}
+
+\newpage
+\section{Bibliography}
+
+
+\setlength{\parindent}{0em}
+
+
+
