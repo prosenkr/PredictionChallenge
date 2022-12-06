@@ -1,5 +1,9 @@
 ---
+<<<<<<< HEAD
 #Philipp's fucked up Branch!! -> fucked up offline
+=======
+#Philipp's fucked up Branch!! -> fucked up online!
+>>>>>>> 121150d75fb69e77f6f9dd2632bcf6213c430caa
 title: "Prediction Challenge"
 author: "Us 5"
 date: "23.06.2022"
