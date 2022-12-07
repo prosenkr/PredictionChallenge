@@ -1,6 +1,10 @@
 ---
 title: "Test Name"
+<<<<<<< HEAD
 author: "Test author"
+=======
+author: "but i want this name"
+>>>>>>> 625ef9c519ad00b885b07448a0e4143b5deb0ebe
 date: "23.06.2022"
 output: 
   pdf_document:
