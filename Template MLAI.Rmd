@@ -1,11 +1,7 @@
 ---
-title: "Test Name"
-<<<<<<< HEAD
-author: "Test author"
-=======
-author: "but i want this name"
->>>>>>> 625ef9c519ad00b885b07448a0e4143b5deb0ebe
-date: "23.06.2022"
+title: "Prediction Challenge"
+author: "Justin, Philipp, Fabian, Lennard, Paul"
+date: "21.12.2022"
 output: 
   pdf_document:
   #  toc: true
@@ -57,20 +53,316 @@ options(digits = 3)
 \baselineskip=1.5\baselineskip
 \section{Introduction}
 
-\textbf{A short Introduction to LaTex}: https://de.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes
+Over the past decade, the labour market has become increasingly tight. Companies have strong difficulties to find matching and convincing professionals and spend an enormous amount of their investments in employee marketing and active sourcing.  
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin gravida aliquam sapien eu feugiat. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nullam elementum lorem non tortor accumsan luctus. Suspendisse placerat elit vel ultrices convallis. Sed molestie ullamcorper interdum. In pellentesque elit et est pellentesque ullamcorper. Sed et cursus dui. Mauris erat quam, vestibulum ac hendrerit id, placerat et nisi. Integer sit amet pretium orci, ut tempus metus. Mauris auctor imperdiet molestie. Donec imperdiet orci augue, nec porttitor neque varius vitae. Proin eget metus vitae dolor commodo venenatis. Morbi eleifend justo eu convallis semper. Praesent massa nisi, tincidunt ac est nec, ultrices varius eros.
+The tension on the labour market is also noticeable on the yachting and luxury shipping branch. M Yachts, a charter platform to book yachting experiences is highly affected by the described development. In addition, the yachting industry is affected by a high turnover of personnel working as crew members on boats and has very demanding and exclusive customers. For this reason, it is even more difficult to find suitable employees for companies in the yachting industry such as M Yachts.  
 
+This paper gives a solution to how well new applicants fit to the company M Yachts by using machine learning approaches. The predicted fit of the applicant is given in percent where 100% are a perfect fit and 0% is represents the lowest matching. To achieve this objective, a dataset of several applicants and their performance ratings, as determined by a recruiter, was provided. Furthermore, the motivation of the paper is to lean the application process to reduce costs on the one hand and provide an objective judgment to improve the quality of the employees on the yachts on the other hand.  
 
-Phasellus rhoncus efficitur sodales. Nam non magna tempor tellus semper viverra vel sit amet augue. Sed erat arcu, sollicitudin vel tincidunt ut, tristique at neque. Mauris quis porttitor nulla. Nullam lacinia scelerisque suscipit. Proin bibendum arcu neque, vitae interdum nisi efficitur non. Duis ut ante nec massa malesuada mollis. Vivamus semper ut leo eu gravida. Proin ultricies turpis vel tincidunt volutpat. Vivamus consequat eget urna sagittis sollicitudin. Quisque quam sem, posuere et mauris a, consequat porta sem.
+The article is written for the module Machine Learning at the University of Cologne, held by Prof. Dr. Markus Weinmann, in cooperation with the company M Yachts. 
+
+First, the paper deals with the exploratory data analysis and describes the characteristics of the given data set. Second, different machine learning methods are presented to find the best prediction whether an applicant fits to M Yachts or not. After introducing the most important findings a discussion about both the usability and meaningfulness and the ethical applicability follows. In the end, the article gives an outlook to illuminate the extendibility of the data set and the potential of implementing other Machine Learning Tools to improve the application process. 
 
 \section{Methods}
-Nam venenatis arcu et tortor lobortis, id rutrum justo venenatis. Ut sed enim consequat ligula mattis rutrum. Donec eleifend fermentum consectetur. Cras facilisis euismod augue, vel tincidunt massa faucibus a. Sed dolor arcu, pellentesque at diam id, pulvinar venenatis felis. Pellentesque id nunc ut nunc imperdiet bibendum. Vivamus scelerisque mauris elit, eu porta urna rutrum ac. Ut felis nunc, iaculis et tempus sit amet, vulputate sit amet nisi. Quisque maximus eu sapien vitae imperdiet. Praesent blandit aliquam massa, vitae bibendum velit facilisis at. Donec erat elit, molestie quis vulputate quis, porttitor malesuada turpis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec vehicula viverra sapien, non interdum ligula. Proin laoreet, orci eget tempus gravida, tellus ante pulvinar ligula, eget lacinia mauris leo vel felis. Suspendisse eu nisl est. Aenean sit amet suscipit odio.
-
-
-
-
 How to compute a numeric list:
+
+```{r}
+df <- read.csv("myachts_extended.csv", na.strings = c("", "NA")) %>%     
+  mutate( StarRating = ifelse(StarRating == "OneStarReview",1,
+                       ifelse(StarRating == "TwoStarReview",2,
+                       ifelse(StarRating == "ThreeStarReview", 3,
+                       ifelse(StarRating == "FourStarReview", 4,
+                       ifelse(StarRating == "FiveStarReview", 5,
+                       ifelse(StarRating == "NotSuitable", 0,"NA")))))) ) %>%      
+                                                            #InProgress deleted
+    rename(Region = Economic.Region,
+         Pop = Population..2020.,
+         Coastline = Coastline.WRI..km.,
+         CoastRatio = Coast.Area.Ratio..WRI...m.km2.,
+         Happiness = Happiness.Report,
+         GDP = GWP.Per.Capita..2020.) %>%
+  
+  mutate(StarRating = as.numeric(StarRating),
+         CurrentCompany = as.factor(CurrentCompany),
+         CurrentRole = as.factor(CurrentRole),
+         IsTempProfile = as.factor(IsTempProfile),
+         WorkerJobSearchStatus = as.factor(WorkerJobSearchStatus),
+         ConnectionPipelineStatus = as.factor(ConnectionPipelineStatus),
+         ProfileAddedAt = as.factor(ProfileAddedAt),
+         ProfileAddedBy = as.factor(ProfileAddedBy),
+         TalentCommunitySource = as.factor(TalentCommunitySource),
+         State = as.factor(State),
+         Country = as.factor(Country),
+         City = as.factor(City),
+         Postcode = as.factor(Postcode),
+         LastCommunicatedAt = as.factor(LastCommunicatedAt),
+         LastCommunicatedBy = as.factor(LastCommunicatedAt),
+         Region = as.factor(Region),
+         Pop = as.numeric(stri_replace_all_regex(Pop,
+                                  pattern=c("\\.", ","),
+                                  replacement=c("", "."),
+                                  vectorize=FALSE)),
+         Happiness = as.numeric(stri_replace_all_regex(Happiness,
+                                  pattern=c("\\.", ","),
+                                  replacement=c("", "."),
+                                  vectorize=FALSE)),
+         Coastline = as.numeric(stri_replace_all_regex(Coastline,
+                                  pattern=c("\\.", ","),
+                                  replacement=c("", "."),
+                                  vectorize=FALSE)),
+         CoastRatio = as.numeric(stri_replace_all_regex(CoastRatio,
+                                  pattern=c("\\.", ","),
+                                  replacement=c("", "."),
+                                  vectorize=FALSE)),
+         GDP = as.numeric(stri_replace_all_regex(GDP,
+                                  pattern=c("\\.", ","),
+                                  replacement=c("", "."),
+                                  vectorize=FALSE))) %>%
+  
+  mutate(Region_edited = ifelse(Country == "Canada", "North America",
+                         ifelse(Country == "United States", "North America",
+                         ifelse(Region == "APAC", "APAC",
+                         ifelse(Region == "LATAM", "LATAM",
+                         ifelse(Region == "EMEA", "EMEA", "NA")))))) %>%
+  mutate(Region_edited = as.factor(Region_edited))
+
+  
+
+#How to convert European numbers format
+#test <- df %>%
+#  mutate(new = gsub("\\.","",Pop)) %>%
+#  mutate(new2 = gsub(",", ".", new)) %>%
+#  mutate(new3 = stri_replace_all_regex(Pop,             #combines step 1+2
+#                                  pattern=c("\\.", ","),
+#                                  replacement=c("", "."),
+#                                  vectorize=FALSE)) %>%
+#  select(Pop, new, new2, new3)
+
+```
+
+```{r}
+summary(df)
+
+#Expected:
+#Region: 2643
+#Pop: 2641
+#Coastline: 2616
+#CoastRatio: 2616
+#Happiness: 2593
+#GDP: 2623
+```
+
+#Select varibales of interest
+#Remove NAs
+```{r}
+df2 <- df %>%
+  select(StarRating, CurrentCompany, CurrentRole, Country, Region_edited,
+         Happiness, Coastline, CoastRatio, TalentCommunitySource, 
+         GDP, Pop, ExperienceYears, CvStrength)
+
+complete_data <- na.omit(df2)
+summary(complete_data)
+```
+```{r}
+basic_eda <- function(data)
+{
+  glimpse(data)
+  print(status(data))
+  freq(data) 
+  print(profiling_num(data))
+  plot_num(data)
+  describe(data)
+}
+
+basic_eda(complete_data)
+```
+
+
+#Convert CurrentRole to 6 level factor
+```{r}
+#Define patterns (create more to reduce "others") to match CurrentRole with
+#job categories:
+#- Allrounder (if more than one job category is specified)
+#- Captain
+#- Deckhand
+#- Engineer
+#- Chef
+#- Steward
+
+chef <- c("chef", "cook", "jefe", "cocina", "kitch")
+engineer <- c("neer", "tech", "engin")
+deckhand <- c("deck", "bosun")
+unemployed <- c("unempl", "seeking", "jobless", "search", "none")
+
+df3 <- complete_data %>%
+  mutate(Job = ifelse((grepl("tain", CurrentRole, ignore.case = TRUE)) == TRUE &
+                      (grepl(paste(engineer, collapse = "|"), CurrentRole, ignore.case = 
+                      TRUE)) == TRUE ,"Allrounder",
+               ifelse((grepl("tain", CurrentRole, ignore.case = TRUE)) == TRUE &
+                      (grepl("stew", CurrentRole, ignore.case = TRUE)) == TRUE ,
+                      "Allrounder",
+               ifelse((grepl("tain", CurrentRole, ignore.case = TRUE)) == TRUE &
+                      (grepl(paste(deckhand, collapse = "|"), CurrentRole, ignore.case = 
+                      TRUE)) == TRUE ,"Allrounder",
+               ifelse((grepl("tain", CurrentRole, ignore.case = TRUE)) == TRUE &
+                      (grepl(paste(chef, collapse = "|"), CurrentRole, ignore.case = 
+                      TRUE)) == TRUE ,"Allrounder", 
+                      #---------------------------------------------------------
+               ifelse((grepl(paste(engineer, collapse = "|"), CurrentRole, ignore.case = 
+                      TRUE)) == TRUE & (grepl("stew", CurrentRole, ignore.case = TRUE)) 
+                      == TRUE , "Allrounder",
+               ifelse((grepl(paste(engineer, collapse = "|"), CurrentRole, ignore.case = 
+                      TRUE)) == TRUE & (grepl(paste(deckhand, collapse = "|"),  
+                      CurrentRole, ignore.case = TRUE)) == TRUE ,"Allrounder",
+               ifelse((grepl(paste(engineer, collapse = "|"), CurrentRole, ignore.case = 
+                      TRUE)) == TRUE & (grepl(paste(chef, collapse = "|"), CurrentRole, 
+                      ignore.case = TRUE)) == TRUE , "Allrounder", 
+                      #--------------------------------------------------------
+               ifelse((grepl("stew", CurrentRole, ignore.case = TRUE)) == TRUE &
+                      (grepl(paste(deckhand, collapse = "|"), CurrentRole, ignore.case = 
+                      TRUE)) == TRUE , "Allrounder",
+               ifelse((grepl("stew", CurrentRole, ignore.case = TRUE)) == TRUE &
+                      (grepl(paste(chef, collapse = "|"), CurrentRole, ignore.case = 
+                      TRUE)) == TRUE , "Allrounder", 
+                      #--------------------------------------------------------
+               ifelse((grepl(paste(deckhand, collapse = "|"), CurrentRole, ignore.case = 
+                      TRUE)) == TRUE & (grepl(paste(chef, collapse = "|"), CurrentRole, 
+                      ignore.case = TRUE)) == TRUE ,"Allrounder", 
+                      
+               #Next: assign jobs by finding key words in CurrentRole
+               ifelse((grepl("tain", CurrentRole, ignore.case = TRUE)) == TRUE,"Captain",
+               ifelse((grepl(paste(deckhand, collapse = "|"), CurrentRole, ignore.case = 
+                     TRUE)) == TRUE,"Deckhand",
+               ifelse((grepl("stew", CurrentRole, ignore.case = TRUE)) == TRUE,"Steward",
+               ifelse((grepl(paste(engineer, collapse = "|"), CurrentRole, ignore.case = 
+                     TRUE)) == TRUE,"Engineer",
+               ifelse((grepl(paste(chef, collapse ="|"), CurrentRole, ignore.case = 
+                     TRUE)) == TRUE,"Chef",
+               ifelse((grepl(paste(unemployed, collapse ="|"), CurrentRole, ignore.case = 
+                     TRUE)) == TRUE, "Unemployed", "Other"))))))))))))))))) %>%
+  
+  mutate(Job = as.factor(Job)) %>%
+  select(CurrentRole, Job, StarRating, CurrentCompany, Country, Region_edited, 
+         Region_edited, Happiness, Coastline, CoastRatio, TalentCommunitySource, 
+         GDP, Pop, ExperienceYears, CvStrength)
+
+```
+
+
+```{r}
+summary(df3$Job) #including two new variables provided by MYachts (esp. Experience) reduces n by ~500
+
+#Ideas:
+#add key words in multiple languages
+#Officer
+#Student / Master
+#Cabin Crew
+#Flight attendant
+#prestige: senior, first, 1st, director, leader, head, chief
+```
+
+```{r}
+#Define industries
+airline <- c("line", "air", "wings", "ryanair", "easyjet", "jet", "fly", "flight")
+yachting <- c("yach", "boat", "chart", "ship", "crew", "sail", "ocean", "farry",
+              "coast", "cruise", "wave", "motor", "acht", "yac", "yate", "barco",
+              "water", "nautic", "ferrie", "freight", "cargo", "royal caribbean",
+              "10m", "20m", "30m", "40m", "50m", "46m", "55m", "100m", "107m", "M/Y")
+hotel <- c("hotel", "hyatt", "hilton", "resort", "lux", "accom")
+gastro <- c("restaurant", "baker", "bar", "food", "ristorante", "caffe", "coffe",
+            "steak", "cafe", "beef", "cake", "catering", "chef", "burger",
+            "gastro", "Café", "cook", "breakfast", "mcdonald")
+defence <- c("minist", "defenc", "marine", "navy", "force", "army", "marit",
+             "safety", "security", "red cross")
+freelance <- c("freelance", "self", "free lance")
+#chains <- c("ryanair", "walmart", "carrefour", "easyjet")
+
+
+df4 <- df3 %>%
+  mutate(Industry = 
+           ifelse((grepl(paste(yachting, collapse = "|"), CurrentCompany, ignore.case = 
+           TRUE)) == TRUE,"yachting",
+           ifelse((grepl(paste(gastro, collapse = "|"), CurrentCompany, ignore.case = 
+           TRUE)) == TRUE,"gastro",
+           ifelse((grepl(paste(hotel, collapse = "|"), CurrentCompany, ignore.case = 
+           TRUE)) == TRUE,"hotel",
+           ifelse((grepl(paste(defence, collapse = "|"), CurrentCompany, ignore.case = 
+           TRUE)) == TRUE,"defence",
+           ifelse((grepl(paste(freelance, collapse = "|"), CurrentCompany, ignore.case = 
+           TRUE)) == TRUE,"freelance",
+           ifelse((grepl(paste(airline, collapse = "|"), CurrentCompany, ignore.case = 
+           TRUE)) == TRUE,"airline", "Other"))))))) %>%
+             
+  mutate(Industry = as.factor(Industry)) %>%
+  mutate(TalentSource = ifelse(TalentCommunitySource == "LinkedIn", "LinkedIn",
+                        ifelse(TalentCommunitySource == "Careers Website",
+                               "Careers Website",
+                        ifelse(TalentCommunitySource == "Indeed","Indeed",
+                        ifelse((grepl("linked", TalentCommunitySource, 
+                                      ignore.case = TRUE)) == TRUE, "LinkedIn",
+                        ifelse((grepl("google", TalentCommunitySource, 
+                                      ignore.case = TRUE)) == TRUE, "Google",
+                        ifelse((grepl("crew", TalentCommunitySource,
+                                     ignore.case = TRUE)) == TRUE, "my-crew.com", 
+                        "Other"))))))) %>%
+  select(CurrentRole, Job, StarRating, CurrentCompany, Industry, Country, Region_edited, 
+         Region_edited, Happiness, Coastline, CoastRatio, TalentCommunitySource, 
+         GDP, Pop, ExperienceYears, CvStrength)
+```
+
+
+```{r}
+summary(df4$Industry)
+```
+#Exploratory data analysis
+
+```{r}
+#Create descriptive statistics (mean, min, max, sd, n)
+#StarRating per job category
+n <- df4 %>%
+  count(Job)
+
+(descriptive_rating_per_job <- df4 %>%
+  group_by(Job) %>%
+  summarise(meanRating = mean(StarRating),
+            minRating = min(StarRating),
+            maxRating = max(StarRating),
+            sdRating = sd(StarRating)) %>%
+  arrange(desc(meanRating)) %>%
+  select(Job, meanRating, minRating, maxRating, sdRating))
+
+rating_per_job <- left_join(descriptive_rating_per_job, n, by= "Job")
+
+#Visualize------------------------------------------------------------------
+ggplot(rating_per_job, aes(Job, meanRating))+
+  geom_bar(stat = "identity")
+
+ggplot(rating_per_job, aes(Job, meanRating))+
+  geom_boxplot()
+
+
+#Experience per job category
+(descriptive_exp_per_job <- df4 %>%
+  group_by(Job) %>%
+  summarise(meanExp = mean(ExperienceYears),
+            minExp = min(ExperienceYears),
+            maxExp = max(ExperienceYears),
+            sdExp = sd(ExperienceYears)) %>%
+  arrange(desc(meanExp)) %>%
+  select(Job, meanExp, minExp, maxExp, sdExp))
+exp_per_job <- left_join(descriptive_exp_per_job, n, by="Job")
+
+
+```
+
+#Next:
+#CV strength per job
+#Job and origin
+#avg rating per origin
+#rating per industry
+#rating per job + exp
+#distribution of countries (world map)
+```{r}
 \begin{enumerate} 
   \item Number 1 on your list
   \item Number 2 on your list
@@ -85,106 +377,22 @@ How to compute a list
 \end{itemize}
 
 \subsection{Method}
-Load data
-
-```{r}
-data(Boston)
-head(Boston)
-??Boston        # get help
-```
-
-
-Exploratory data analysis
-
-```{r}
-basic_eda <- function(data)
-{
-  glimpse(data)
-  print(status(data))
-  freq(data) 
-  print(profiling_num(data))
-  plot_num(data)
-  describe(data)
-}
-```
-
-```{r}
-fit <- lm(medv ~ lstat, data = Boston)
-summary(fit)
-lm_spec <- linear_reg() %>%   # linear regression
-  set_mode("regression") %>%  # regression (or classification)
-  set_engine("lm")            # method of estimation, here, ordinary least squares
-show_engines("linear_reg")
-```
-
-```{r}
-lm_fit <- lm_spec %>%
-  fit(medv ~ lstat, data = Boston)
-lm_fit
-```
-
-```{r}
-lm_fit %>% 
-  pluck("fit") %>%
-  summary()
-```
-
-
-
-```{r}
-tidy(lm_fit)
-```
-
-and `glance()` can be used to *extract the model statistics*.
-
-```{r}
-glance(lm_fit)
-```
-
-```{r}
-predict(lm_fit, new_data = Boston)
-```
-
-```{r}
-lm_fit2 <- lm_spec %>% 
-  fit(medv ~ lstat + age, data = Boston)
-lm_fit2
-```
-
-Everything else works the same. From extracting parameter estimates
-
-```{r}
-tidy(lm_fit2)
-lm_fit2 %>% 
-  pluck("fit") %>%
-  summary()
-```
-
-to predicting new values
-
-```{r}
-predict(lm_fit2, new_data = Boston)
-```
 
 
 
 \section{Results}
-Quisque ultricies varius placerat. Cras ut leo sit amet dolor vestibulum consequat. Nullam placerat lorem eget ante aliquam porta ut vel tortor. Suspendisse imperdiet magna id lectus dignissim, eget commodo ligula semper. Etiam ullamcorper, mauris eu ultrices dapibus, nulla justo tincidunt lacus, rhoncus congue risus leo rutrum magna. Donec et augue dui. Ut bibendum porttitor massa, eu venenatis est tincidunt eu. Ut vel tincidunt lectus.
+
 
 \subsection{Plots}
 
-\textbf{Short introduction to the ggplot2 package with further links to more detailed instructions}: https://ggplot2.tidyverse.org
-
 \section{Discussion}
-In venenatis porta odio, quis egestas neque commodo sed. Ut et elit ut nibh accumsan ornare sit amet a diam. Vestibulum imperdiet ut diam at porta. Vivamus malesuada egestas ligula vel molestie. Cras congue nibh non felis scelerisque, sed porta ex sollicitudin. Nunc dignissim facilisis libero luctus auctor. Nulla cursus velit at efficitur luctus. Morbi fringilla, nisi in aliquam sodales, metus ligula aliquet ipsum, nec fermentum dolor ipsum et erat. Nam blandit sapien ipsum, vitae euismod tortor pellentesque eget. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent tempus nulla nec turpis pulvinar pellentesque. Vestibulum a purus eu libero efficitur varius ut ut urna. Curabitur et tellus lobortis, facilisis augue ornare, sagittis lacus. Nullam ac orci at enim fermentum consequat iaculis quis ante.
 
 \newpage
 \section{Evaluation of examination results}
-Please indicate if you want to receive a the same grade or individual grades. Everyone in the group has to confirm your choice and sign this document.
 
 \begin{enumerate}
 
-\item \textbf{Same grade: We confirm that each student from our group has     contributed equally to the project.}
+\item \textbf{Same grade: We confirm that each student from our group has contributed equally to the project.}
 
 
   \begin{tabular}{@{}p{7cm}p{5cm}@{}}
