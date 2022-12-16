@@ -32,7 +32,6 @@ library( tinytex )
 library( sandwich )
 library( lmtest )
 library( stargazer )
-library(MASS) # For Boston data set
 library(tidymodels)
 library(ISLR)
 library(GGally)
