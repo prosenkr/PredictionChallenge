@@ -43,6 +43,13 @@ library(funModeling)
 options(digits = 3)
 ```
 
+```{r, echo=FALSE}
+rm(list=ls())
+set.seed(1234)
+options(scipen=10000)
+select <- dplyr::select
+```
+
 
 \newpage
 \tableofcontents
@@ -60,13 +67,23 @@ This paper gives a solution to how well new applicants fit to the company M Yach
 
 The article is written for the module Machine Learning at the University of Cologne, held by Prof. Dr. Markus Weinmann, in cooperation with the company M Yachts. 
 
-First, the paper deals with the exploratory data analysis and describes the characteristics of the given data set. Second, different machine learning methods are presented to find the best prediction whether an applicant fits to M Yachts or not. After introducing the most important findings a discussion about both the usability and meaningfulness and the ethical applicability follows. In the end, the article gives an outlook to illuminate the extendibility of the data set and the potential of implementing other Machine Learning Tools to improve the application process. 
+First, the paper deals with the exploratory data analysis and describes the characteristics of the given data set. Second, different machine learning methods are presented to find the best prediction whether an applicant fits to M Yachts or not. After introducing the most important findings a discussion about both the usability and meaningfulness and the ethical applicability follows. In the end, the article gives an outlook to illuminate the extendability of the data set and the potential of implementing other Machine Learning Tools to improve the application process. 
 
-\section{Methods}
-How to compute a numeric list:
+\section{Dataset}
+
+To ensure that the data used for training machine learning models is accurate and properly formatted, we perform an exploratory data analysis (EDA) and data wrangling as first step.
+
+\subsection{Exploratory Data Analysis (EDA)}
+
+EDA involves analyzing and summarizing the characteristics of a dataset, identifying patterns and anomalies, and visualizing the data to gain insights. This helps to understand the data and identify any potential issues that may affect the accuracy of the used models. First, we load the dataset provided by MYachts and prepare it for the EDA by renaming and mutating variables. In addition, we deselect certain variables that are not suitable as predictors and therefore, not relevant for our first analysis.
 
 ```{r}
-df <- read.csv("myachts_extended.csv", na.strings = c("", "NA")) %>%     
+# Load raw dataset
+mycrew <- read.csv("MyCrew Data_221208.csv")
+```
+
+```{r}
+df <- read.csv("myachts_extended.csv", na.strings = c("", "NA","na", "n/a", "N/A")) %>%     
   mutate( StarRating = ifelse(StarRating == "OneStarReview",1,
                        ifelse(StarRating == "TwoStarReview",2,
                        ifelse(StarRating == "ThreeStarReview", 3,
@@ -361,22 +378,12 @@ exp_per_job <- left_join(descriptive_exp_per_job, n, by="Job")
 #rating per industry
 #rating per job + exp
 #distribution of countries (world map)
-```{r}
-\begin{enumerate} 
-  \item Number 1 on your list
-  \item Number 2 on your list
-\end{enumerate}
+
+\section{Methods}
 
 \subsection{Study Design} 
 
-How to compute a list
-\begin{itemize}
-\item Bulletpoint 1
-\item Bulletpoint 2
-\end{itemize}
-
 \subsection{Method}
-
 
 
 \section{Results}
