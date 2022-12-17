@@ -59,15 +59,14 @@ select <- dplyr::select
 \baselineskip=1.5\baselineskip
 \section{Introduction}
 
-Over the past decade, the labour market has become increasingly tight. Companies have strong difficulties to find matching and convincing professionals and spend an enormous amount of their investments in employee marketing and active sourcing.  
-
-The tension on the labour market is also noticeable on the yachting and luxury shipping branch. M Yachts, a charter platform to book yachting experiences is highly affected by the described development. In addition, the yachting industry is affected by a high turnover of personnel working as crew members on boats and has very demanding and exclusive customers. For this reason, it is even more difficult to find suitable employees for companies in the yachting industry such as M Yachts.  
-
-This paper gives a solution to how well new applicants fit to the company M Yachts by using machine learning approaches. The predicted fit of the applicant is given in percent where 100% are a perfect fit and 0% is represents the lowest matching. To achieve this objective, a dataset of several applicants and their performance ratings, as determined by a recruiter, was provided. Furthermore, the motivation of the paper is to lean the application process to reduce costs on the one hand and provide an objective judgment to improve the quality of the employees on the yachts on the other hand.  
-
-The article is written for the module Machine Learning at the University of Cologne, held by Prof. Dr. Markus Weinmann, in cooperation with the company M Yachts. 
-
-First, the paper deals with the exploratory data analysis and describes the characteristics of the given data set. Second, different machine learning methods are presented to find the best prediction whether an applicant fits to M Yachts or not. After introducing the most important findings a discussion about both the usability and meaningfulness and the ethical applicability follows. In the end, the article gives an outlook to illuminate the extendability of the data set and the potential of implementing other Machine Learning Tools to improve the application process. 
+// Evidence from journals follows the statements made here.  
+Over the past decade, the labour market has become increasingly tight. Companies have strong difficulties to find matching and convincing professionals and spend an enormous amount of their investments in employee marketing and active sourcing. 
+The tension on the labour market is also noticeable on the yachting and luxury shipping branch. M Yachts, a charter platform to book yachting experiences is highly affected by the described development. In addition, the yachting industry is affected by a high turnover of personnel working as crew members on boats and has very demanding and exclusive customers. For this reason, it is even more difficult to find suitable employees for companies in the yachting industry such as M Yachts. 
+Version 1: This paper addresses the research question how to predict how well an applicant will fit into M Yachts?
+Version 2: The paper gives a solution to how well new applicants fit to the company M Yachts by using machine learning approaches. 
+The predicted fit of the applicant is given by a star rating between zero and five, where five is a perfect fit and zero represents the lowest matching. To achieve this objective, a dataset of several applicants and their star ratings, as determined by a recruiter, was provided. Furthermore, the motivation of the paper is to lean the application process to reduce costs on the one hand and provide an objective judgment to improve the quality of the employees on the yachts on the other hand. 
+The article is written in course of the module Machine Learning at the University of Cologne, held by Prof. Dr. Markus Weinmann, in cooperation with the company M Yachts. Applying the main concepts of machine learning and analysing results of them are goals of the module. The assignment faces exactly these competencies and applies them to the practical problem of M Yachts. 
+First, the paper deals with the exploratory data analysis and describes the characteristics of the given data set. Second, different machine learning methods are presented to find the best prediction whether an applicant fits to M Yachts or not. After introducing the most important findings a discussion about both the usability and meaningfulness and the ethical applicability follows. In the end, the article gives an outlook to illuminate the extensibility of the data set and the potential of implementing other Machine Learning Tools to improve the application process.
 
 \section{Dataset}
 
@@ -76,6 +75,11 @@ To ensure that the data used for training machine learning models is accurate an
 \subsection{Exploratory Data Analysis (EDA)}
 
 EDA involves analyzing and summarizing the characteristics of a dataset, identifying patterns and anomalies, and visualizing the data to gain insights. This helps to understand the data and identify any potential issues that may affect the accuracy of the used models. First, we load the dataset provided by MYachts and prepare it for the EDA by renaming and mutating variables. In addition, we deselect certain variables that are not suitable as predictors and therefore, not relevant for our first analysis.
+
+\subsection{Variables of interest}
+Explain: what makes a variable interesting? 
+Table which are interesting?
+Show that we have very less data  data extension 
 
 ```{r}
 # Load raw dataset
@@ -380,19 +384,35 @@ exp_per_job <- left_join(descriptive_exp_per_job, n, by="Job")
 #distribution of countries (world map)
 
 \section{Methods}
+What is our general approach? How to we proceed? 
+Overview of different ML models: 
+Difference between classification and regression? 
+
 
 \subsection{Study Design} 
 
-\subsection{Method}
+\subsection{Model 1}
+Explanation of the model
+Advantages, disadvantages?
 
+\subsection{Model 2}
+...
 
 \section{Results}
+Model evaluation
+Which algorithm/ML method has the best accuracy? 
 
 
 \subsection{Plots}
 
 \section{Discussion}
-
+What challenges did we face in the prediction challenge? 
+Data lack  potential
+\subsection{Challenges}
+\subsection{Ethics}
+Ethics (country and crime rate as predictor) 
+\subsection{Outlook}
+How to improve the application process? 
 \newpage
 \section{Evaluation of examination results}
 
