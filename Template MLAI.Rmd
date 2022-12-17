@@ -384,23 +384,55 @@ exp_per_job <- left_join(descriptive_exp_per_job, n, by="Job")
 #distribution of countries (world map)
 
 \section{Methods}
-What is our general approach? How to we proceed? 
-Overview of different ML models: 
-Difference between classification and regression? 
+To really understand what machine learning methods are used and how they work, it is important to first understand what machine learning is: 
+Machine learning is a subfield of artificial intelligence that involves the development of algorithms and models that can learn from and make predictions or decisions based on data. These algorithms and models are able to improve their performance over time as they are exposed to more data.
 
+In machine learning, algorithms are trained on a dataset, which consists of a collection of examples that include input data and the corresponding correct output. The algorithm uses this training data to learn how to map the input data to the correct output. Once the algorithm has learned from the training data, it can then be applied to new, unseen data to make predictions or decisions.
 
-\subsection{Study Design} 
+There are several different types of machine learning, including supervised learning and unsupervised learning. Supervised learning involves training an algorithm on labeled data, where the correct output is provided for each example in the training data. Unsupervised learning comprises training an algorithm on unlabeled data, where the algorithm must discover the underlying structure of the data on its own.
 
-\subsection{Model 1}
-Explanation of the model
-Advantages, disadvantages?
+\subsection{Supervised}
+In supervised learning, the training data consists of a set of input-output pairs. The algorithm uses these pairs to learn the relationship between the input and the output. Once the algorithm has learned this relationship, it can then be applied to new, unseen input data to predict the corresponding output.
 
-\subsection{Model 2}
-...
+Examples of supervised learning tasks include classification, where the goal is to predict a class label for a given input data, and regression, where the objective is to predict a continuous output value.
+
+Supervised learning is widely used in many applications, such as image classification, spam detection, and stock price prediction. It is a powerful tool for solving problems that require the prediction of a specific output value based on input data.
+
+\subsubsection{Classification}
+In classification, the input data is usually represented as a set of features, which are attributes or characteristics of the data.
+The class label is the output that the algorithm is trying to predict. For example, in a binary classification problem, there are only two possible class labels (e.g., spam or not spam). In a multi-class classification problem, there are more than two possible class labels.
+
+The goal of the paper is to predict the star rating of the given data set which is a multi-class classification with markedness from zero to five. Thus, different classification methods could be a good approach to find an answer to the research question. 
+
+\subsubsubsection{Decision Tree}
+A decision works by creating a tree-like model of decisions and their possible consequences. The tree is created by splitting the data into smaller and smaller subsets based on certain feature values. At each node in the tree, the model makes a decision based on the value of a certain feature and directs the data to the right branch of the tree. The final decision at the end of the tree is the predicted outcome.
+
+Decision trees are easy to understand and interpret, and they can handle both continuous and categorical data. However, they can be prone to overfitting and may not always perform as well as other machine learning algorithms.
+\subsubsubsection{Extreme Gradient Boosting XGBoosting}
+
+\subsubsubsection{Random Forrest}
+\subsubsubsection{Naive Bayes}
+\subsubsubsection{Logistic Regression}
+\subsubsection{Regression}
+\subsubsubsection{Linear Regression}
+
+\subsection{Unsupervised}
+Unsupervised learning is a type of machine learning in which the model is not given any labeled training data. Instead, the model must find patterns and relationships in the data on its own. This is in contrast to supervised learning, in which the model is given labeled training data and learns to make predictions based on that data.
+
+Unsupervised learning is useful for exploring and understanding the structure of a dataset, and it can be used to generate new features or to identify patterns that may not be apparent in the raw data. However, it is generally less accurate than supervised learning and requires more data to be effective.
+
+The machine learning field can be divided into dimensionality reduction and clustering 
+\subsubsection{Dimensionality Reduction}
+Principal Component Analysis:
+
+\subsubsection{Clustering}
+\subsubsubsection{K-Means}
 
 \section{Results}
-Model evaluation
+Model evaluation and results of the different models
 Which algorithm/ML method has the best accuracy? 
+
+Why do we choose it and what could we change? 
 
 
 \subsection{Plots}
