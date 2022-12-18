@@ -72,18 +72,16 @@ options(digits = 3)
 \section{Introduction}
 
 Over the past decade, the labour market has become increasingly tight. Companies have strong difficulties finding matching and convincing professionals and spend a big part of their investments in employee marketing and active sourcing. 
-The tension on the labour market is also noticeable on the yachting and luxury shipping branch. M Yachts, a charter platform to book yachting experiences is highly affected by the described development. In addition, the yachting industry is affected by a high turnover of personnel working as crew members on boats and has very demanding and exclusive customers. For this reason, it is even more difficult and important to find suitable employees for companies in the yachting industry such as M Yachts. 
-
-\noindent This paper aims to answer the following research question by using machine learning methods
+The tension on the labour market is also noticeable on the yachting and luxury shipping branch. M Yachts, a charter platform to book yachting experiences is highly affected by the described development. In addition, the yachting industry is affected by a high turnover of personnel working as crew members on boats and has very demanding and exclusive customers. For this reason, it is even more difficult and important to find suitable employees for companies in the yachting industry such as M Yachts. This paper addresses this issue and aims to answer the following research question by using machine learning methods:
 
 \begin{quote}
-How well does an applicant fit into a position at M Yachts?
+\emph{RQ: How well does an applicant fit into a position at M Yachts?}
 \end{quote}
 
-The fit of an applicant shall be represented by a star rating between zero and five, where five is a perfect fit and zero represents the lowest matching. The star rating is currently determined manually by a recruiter, which poses a lot of manual work and challenges the company’s resources. The motivation of the paper is to learn the application process to reduce those costs on the one hand and provide an objective judgement to improve the quality of the yachting employees on the other hand. 
+\noindent The fit of an applicant shall be represented by a star rating between zero and five, where five is a perfect fit and zero represents the lowest matching. The star rating is currently determined manually by a recruiter, which poses a lot of manual work and challenges the company’s resources. The motivation of the paper is to learn the application process to reduce those costs on the one hand and provide an objective judgement to improve the quality of the yachting employees on the other hand. 
 The article is written as a prediction challenge of the module Machine Learning at the University of Cologne, held by Prof. Dr. Markus Weinmann, in cooperation with the company M Yachts. Goals of the module are to apply the main concepts of machine learning and analyse results of them, competencies which are applied to a practical problem of M Yachts in this task. 
 
-First, the paper deals with exploratory data analysis and describes the characteristics of the given data set. Second, different machine learning methods are presented to find the best prediction whether an applicant fits M Yachts or not. After introducing the most important findings, the paper will discuss both usability and validity of the results, as well as ethical applicability. In the end, the article gives an outlook to illuminate the extensibility of the data set and the potential of implementing other Machine Learning Tools to improve the application process.
+\noindent First, the paper deals with exploratory data analysis and describes the characteristics of the given data set. Second, different machine learning methods are presented to find the best prediction whether an applicant fits M Yachts or not. After introducing the most important findings, the paper will discuss both usability and validity of the results, as well as ethical applicability. In the end, the article gives an outlook to illuminate the extensibility of the data set and the potential of implementing other Machine Learning Tools to improve the application process.
 
 
 \section{Dataset}
