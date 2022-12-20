@@ -1,13 +1,11 @@
 ---
 title: "Prediction Challenge"
-subtitle: "In Maschine Learning and Artificial Intelligence"
+subtitle: "In Machine Learning and Artificial Intelligence"
 author: "Justin Engelker, Philipp Rosenkranz, Fabian Günkel, Lennard Kothe, Paul Wieder"
 date: "21.12.2022"
 output:
   pdf_document:
     number_sections: yes
-  html_document:
-    df_print: paged
 header-includes:
 - \usepackage{graphicx}
 - \usepackage{float}
@@ -15,7 +13,7 @@ header-includes:
 - \usepackage{dcolumn}
 - \usepackage{parskip}
 - \usepackage[backend=bibtex]{biblatex}
-- \addbibresource{BibliographyPC.bib}
+- \addbibresource{references.bib}
 - \usepackage{xcolor}
 ---
 
@@ -30,21 +28,21 @@ select <- dplyr::select
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = T, message = FALSE, warning = FALSE)
 # Load Libraries
-library( tidyverse )
-library( tidybayes )
-library( funModeling ) 
-library( scico ) 
-library( ggrepel )
-library( scico )
-library( ggthemes )
-library( patchwork )
-library( haven )
-library( tibble )
-library( knitr )
-library( tinytex )
-library( sandwich )
-library( lmtest )
-library( stargazer )
+library(tidyverse)
+library(tidybayes)
+library(funModeling) 
+library(scico) 
+library(ggrepel)
+library(scico)
+library(ggthemes)
+library(patchwork)
+library(haven)
+library(tibble)
+library(knitr)
+library(tinytex)
+library(sandwich)
+library(lmtest)
+library(stargazer)
 library(tidymodels)
 library(ISLR)
 library(GGally)
@@ -59,6 +57,8 @@ library(stringi)
 library(Hmisc)
 library(skimr)
 library(tm)
+library(caret)
+library(naivebayes)
 
 options(digits = 3)
 ```
@@ -67,21 +67,21 @@ options(digits = 3)
 \tableofcontents
 
 \newpage
-\setlength{\parindent}{2em}
+\setlength{\parindent}{0em}
 \baselineskip=1.5\baselineskip
 \section{Introduction}
 
 Over the past decade, the labour market has become increasingly tight. Companies have strong difficulties finding matching and convincing professionals and spend a big part of their investments in employee marketing and active sourcing. 
-The tension on the labour market is also noticeable on the yachting and luxury shipping branch. M Yachts, a charter platform to book yachting experiences is highly affected by the described development. In addition, the yachting industry is affected by a high turnover of personnel working as crew members on boats and has very demanding and exclusive customers. For this reason, it is even more difficult and important to find suitable employees for companies in the yachting industry such as M Yachts. This paper addresses this issue and aims to answer the following research question by using machine learning methods:
+The tension on the labour market is also noticeable on the yachting and luxury shipping branch. M Yachts, a charter platform to book yachting experiences is highly affected by the described development. In addition, the yachting industry is affected by a high turnover of personnel working as crew members on boats and has very demanding and exclusive customers. For this reason, it is even more difficult and important to find suitable employees for companies in the yachting industry such as M Yachts. This paper addresses this issue and aims to answer the following research question by selected sing machine learning methods:
 
 \begin{quote}
 \emph{RQ: How well does an applicant fit into a position at M Yachts?}
 \end{quote}
 
-\noindent The fit of an applicant shall be represented by a star rating between zero and five, where five is a perfect fit and zero represents the lowest matching. The star rating is currently determined manually by a recruiter, which poses a lot of manual work and challenges the company’s resources. The motivation of the paper is to learn the application process to reduce those costs on the one hand and provide an objective judgement to improve the quality of the yachting employees on the other hand. 
+The fit of an applicant shall be represented by a star rating between zero and five, where five is a perfect fit and zero represents the lowest matching. The star rating is currently determined manually by a recruiter, which poses a lot of manual work and challenges the company’s resources. The motivation of the paper is to learn the application process to reduce those costs on the one hand and provide an objective judgement to improve the quality of the yachting employees on the other hand. 
 The article is written as a prediction challenge of the module Machine Learning at the University of Cologne, held by Prof. Dr. Markus Weinmann, in cooperation with the company M Yachts. Goals of the module are to apply the main concepts of machine learning and analyse results of them, competencies which are applied to a practical problem of M Yachts in this task. 
 
-\noindent First, the paper deals with exploratory data analysis and describes the characteristics of the given data set. Second, different machine learning methods are presented to find the best prediction whether an applicant fits M Yachts or not. After introducing the most important findings, the paper will discuss both usability and validity of the results, as well as ethical applicability. In the end, the article gives an outlook to illuminate the extensibility of the data set and the potential of implementing other Machine Learning Tools to improve the application process.
+First, the paper deals with exploratory data analysis and describes the characteristics of the given data set. Second, different machine learning methods are presented to find the best prediction whether an applicant fits M Yachts or not. After introducing the most important findings, the paper will discuss both usability and validity of the results, as well as ethical applicability. In the end, the article gives an outlook to illuminate the extensibility of the data set and the potential of implementing other Machine Learning Tools to improve the application process.
 
 
 \section{Dataset}
@@ -103,22 +103,7 @@ summary(mycrew)
 
 To optimise the model's performance we filter variables that are not suitable as predictors. Therefore, we obtained an overview of the raw data by examining each variable and checking for correlations between the variables and the outcome \textit{StarRating}. This leads to the exclusion of 15 variables, including variables we do not consider to be causally related to the Star Rating (\textit{WorkerID, IsTempProfile, WorkerJobSearchStatus, ConnectionPipelineStatus, ProfileAddedAt, ProfileAddedBy, TalentPoolCount}), variables that contain mostly missing data (\textit{RecruiterMessage, WorkerMessage, TotalResponseRate, LastCommunicatedAt, LastCommunicatedBy}) and variables about the origin of the people that are too specific and will be represented by the variable \textit{Country} (\textit{State, City, Postcode}). This leaves us with the four character variables \textit{CurrentCompany}, \textit{CurrentRole}, \textit{Country} and \textit{TalentCommunitySource} and two integer variables \textit{ExperienceYears} and \textit{CvStrength} of our selected dataset (see Figure 1).
 
-```{r, echo=FALSE, results=FALSE}
-# Mutate StarRating into numeric
-mycrew <- mycrew %>%
-  mutate( StarRating = ifelse(StarRating == "OneStarReview",1,
-                       ifelse(StarRating == "TwoStarReview",2,
-                       ifelse(StarRating == "ThreeStarReview", 3,
-                       ifelse(StarRating == "FourStarReview", 4,
-                       ifelse(StarRating == "FiveStarReview", 5,
-                       ifelse(StarRating == "NotSuitable", 0,"NA")))))),
-          StarRating = as.numeric(StarRating))
-
-# Checking for correlations and its significance
-rcorr(as.matrix((mycrew[c("WorkerID","IsTempProfile","TalentPoolCount","WorkerMessage","TotalResponseRate","CvStrength","ExperienceYears","RecruiterMessage","StarRating")])))
-```
-
-```{r, echo=FALSE, results=FALSE}
+```{r, cache=TRUE, echo=FALSE, results=FALSE}
 # Number of NA's in each column:
 sort(colSums(is.na(mycrew)))
 ```
@@ -127,6 +112,8 @@ sort(colSums(is.na(mycrew)))
 
 Data Wrangling is referred to as "the process of gathering, selecting, and transforming data to answer an analytical question" \cite{elderresearch}, which in our case results in a prepared dataframe [df] used for various machine learning models (see Figure 1). Specifically, we transform our raw dataset by mutating relevant variables and by converting categorial variables to factors and numeric variables to numeric values. With data enrichment we aim to expand the scope and context of our analysis and potentially improve the accuracy of the prediction.
 
+\subsubsection{Transforming Given Variables}
+
 \begin{figure}
   \includegraphics{DataWranglingFig.pdf}
   \caption{Data Wrangling Process}
@@ -134,22 +121,22 @@ Data Wrangling is referred to as "the process of gathering, selecting, and trans
 
 The original variable \textit{TalentCommunitySource} is transformed so that its attributes are unified into "LinkedIn","Indeed","Google","my-crew.com" and "Other" and saved as \textit{TalentSource}. The variables \textit{CurrentRole} and \textit{CurrentCompany} are matched with job, respectively industry categories by specifying a list of keywords for each category and filtering the attributes that contain those keywords. Therefore, we use ifelse statements including the grepl function.
 
-To get an overview of different categories in both columns, we first performed the unsupervised method of k-means clustering by transforming the words into numeric values and finding clusters within those words. By plotting the "Within groups sum of squares" we identified 11 means for the clustering (see Figure 2). This way we found clusters such as "Head Chef", "Manager" or "Director" for \textit{CurrentRole}. With those insights we classified the variable into the following groups:
+To get an overview of different categories in both columns, we first performed the unsupervised model of k-means clustering by transforming the words into numeric values and finding clusters within those values. By plotting the "Within groups sum of squares" we identified k=11 for the clustering of \textit{CurrentRole} (see Figure 2). This way we found clusters such as "Chef", "Manager" or "Master". The same procedure was applied to \textit{CurrentCompany} with k=13 clusters. With those insights we classified the variables into the following groups (n refers to the number of observations in each group in our final data frame):
 
 \begin{table}[h!]
 \raggedright
 \begin{tabular}{|c|c c c c c c c c|} 
  \hline
- Jobs: & Allrounder & Captain & Deckhand & Engineer & Chef & Steward & Unemployed & Other \\ [0.5ex] 
+ Jobs: & Allrounder & Captain & Chef & Deckhand & Engineer & Steward & Unemployed & Other \\ [0.5ex] 
  \hline
- n: & x & x & x & x & x & x & x & x \\ [1ex]
+ n: & 23 & 155 & 164 & 69 & 74 & 83 & 20 & 494 \\ [1ex]
  \hline
 \end{tabular}
 \begin{tabular}{|c|c c c c c c c|} 
  \hline
  Industries: & airline & defence & freelance & gastro & hotel & yachting & Other \\ [0.5ex] 
  \hline
- n: & x & x & x & x & x & x & x \\ [1ex]
+ n: & 50 & 50 & 15 & 77 & 59 & 222 & 610 \\ [1ex]
  \hline
 \end{tabular}
 \caption{Attributes in \textit{Jobs} and \textit{Industry}}
@@ -159,7 +146,12 @@ To get an overview of different categories in both columns, we first performed t
 ```{r, echo=FALSE, results=FALSE}
 # Mutate TalentSource, convert and select variables 
 df1 <- mycrew %>%
-  mutate( TalentSource = 
+  mutate( StarRating = ifelse(StarRating == "OneStarReview",1,
+                       ifelse(StarRating == "TwoStarReview",2,
+                       ifelse(StarRating == "ThreeStarReview", 3,
+                       ifelse(StarRating == "FourStarReview", 4,
+                       ifelse(StarRating == "FiveStarReview", 5,"NA"))))),
+          TalentSource = 
                         ifelse(TalentCommunitySource == "LinkedIn", "LinkedIn",
                         ifelse(TalentCommunitySource == "Careers Website",
                                "Careers Website",
@@ -172,14 +164,14 @@ df1 <- mycrew %>%
                                      ignore.case = TRUE)) == TRUE, "my-crew.com", 
                         "Other")))))), # unify TalentCommunitySource variable
           TalentSource = as.factor(TalentSource),
-          StarRating = as.numeric(StarRating),
+          StarRating = as.factor(StarRating),
           CurrentCompany = as.factor(CurrentCompany),
           CurrentRole = as.factor(CurrentRole),
           Country = as.factor(Country)) %>%
   select(CurrentCompany, CurrentRole, StarRating, Country, TalentSource, ExperienceYears, CvStrength)
 ```
 
-```{r, echo=FALSE, results=FALSE}
+```{r, cache=TRUE, echo=FALSE, results=FALSE}
 # function for WSSPlot (k-means clustering)
 # function from: https://rdrr.io/github/dgarmat/dgfunctionpack/man/wssplot.html
 wssplot <- function(df, nc = 15, seed = 1234, nstart = 1){
@@ -196,39 +188,89 @@ wssplot <- function(df, nc = 15, seed = 1234, nstart = 1){
 }
 ```
 
-```{r, echo=FALSE, results=FALSE}
+```{r, cache=TRUE, echo=FALSE, results=FALSE}
+# Jobs k-means clustering:
+
+# Transforming words into values in a matrix
 jobs <- as.vector(df1$CurrentRole)
 
 dtm_j <- DocumentTermMatrix(Corpus(VectorSource(jobs)))
 ```
 
-```{r, echo=FALSE, fig.align="center", fig.pos="h!", out.width="70%", fig.cap="WSS Plot for k-means Clustering"}
-wssplot(dtm_j, nc=25,seed=1234,nstart=1)
+```{r, cache=TRUE, echo=FALSE, fig.align="center", fig.pos="h!", out.width="70%", fig.cap="WSS Plot for k-means Clustering"}
+# Plotting the "Within groups sum of squares" by number of clusters
+#wssplot(dtm_j, nc=25,seed=1234,nstart=1)
 ```
 
-```{r, echo=FALSE, results=FALSE}
+```{r, cache=TRUE, echo=FALSE, results=FALSE}
+# Selecting k = 11 clusters to perform k-means clustering
+set.seed(1234)
 km <- kmeans(as.matrix(dtm_j),centers=11, algorithm="Hartigan-Wong")
 
 df_jobs <- data.frame(job = jobs, cluster = km$cluster)
 
 #df_jobs %>%
- # group_by(cluster) %>%
- # summarise(count = n())
-  
-df_jobs$cluster[df_jobs$cluster == 1] <- "Head Chef"
-df_jobs$cluster[df_jobs$cluster == 2] <- "Chef"
-df_jobs$cluster[df_jobs$cluster == 3] <- "Director"
-df_jobs$cluster[df_jobs$cluster == 4] <- "Instructor"
-df_jobs$cluster[df_jobs$cluster == 5] <- "Other"
-df_jobs$cluster[df_jobs$cluster == 6] <- "Executive Job"
+  #filter(cluster==11)
+
+# After printing out each cluster, we manually assign categories to each cluster  
+df_jobs$cluster[df_jobs$cluster == 1] <- "Manager"
+df_jobs$cluster[df_jobs$cluster == 2] <- "Attendant"
+df_jobs$cluster[df_jobs$cluster == 3] <- "Other"
+df_jobs$cluster[df_jobs$cluster == 4] <- "Captain"
+df_jobs$cluster[df_jobs$cluster == 5] <- "Crew"
+df_jobs$cluster[df_jobs$cluster == 6] <- "Officer"
 df_jobs$cluster[df_jobs$cluster == 7] <- "Engineer"
-df_jobs$cluster[df_jobs$cluster == 8] <- "Cabin Crew"
-df_jobs$cluster[df_jobs$cluster == 9] <- "Deckhand/Master/Steward"
-df_jobs$cluster[df_jobs$cluster == 10] <- "Manager" 
-df_jobs$cluster[df_jobs$cluster == 11] <- "Assistant"
+df_jobs$cluster[df_jobs$cluster == 8] <- "Assistant/Instructor/Manager"
+df_jobs$cluster[df_jobs$cluster == 9] <- "Master"
+df_jobs$cluster[df_jobs$cluster == 10] <- "Captain" 
+df_jobs$cluster[df_jobs$cluster == 11] <- "Chef"
+
+df_jobs %>%
+group_by(cluster) %>%
+summarise(count = n())
 ```
 
 ```{r, echo=FALSE, results=FALSE}
+# Same procedure for Company clustering:
+
+# Transforming words into values in a matrix
+companies <- as.vector(df1$CurrentCompany)
+
+dtm_c <- DocumentTermMatrix(Corpus(VectorSource(companies)))
+
+# Plotting the "Within groups sum of squares" by number of clusters
+#wssplot(dtm_c, nc=25,seed=1234,nstart=1)
+
+# Selecting k = 13 clusters to perform k-means clustering
+set.seed(1234)
+km <- kmeans(as.matrix(dtm_c),centers=13, algorithm="Hartigan-Wong")
+
+df_comp <- data.frame(company = companies, cluster = km$cluster)
+
+#df_comp %>%
+ # filter(cluster==13)
+
+# After printing out each cluster, we manually assign categories to each cluster
+df_comp$cluster[df_comp$cluster == 1] <- "Restaurant"
+df_comp$cluster[df_comp$cluster == 2] <- "The xy"
+df_comp$cluster[df_comp$cluster == 3] <- "shipping"
+df_comp$cluster[df_comp$cluster == 4] <- "Yacht"
+df_comp$cluster[df_comp$cluster == 5] <- "Resort/Spa/Hotel"
+df_comp$cluster[df_comp$cluster == 6] <- "International"
+df_comp$cluster[df_comp$cluster == 7] <- "Other"
+df_comp$cluster[df_comp$cluster == 8] <- "M/Y"
+df_comp$cluster[df_comp$cluster == 9] <- "Company"
+df_comp$cluster[df_comp$cluster == 10] <- "Hotel"
+df_comp$cluster[df_comp$cluster == 11] <- "Carnival"
+df_comp$cluster[df_comp$cluster == 12] <- "LLC"
+df_comp$cluster[df_comp$cluster == 13] <- "Ltd"
+
+df_comp %>%
+group_by(cluster) %>%
+summarise(count = n())
+```
+
+```{r, cache=TRUE, echo=FALSE, results=FALSE}
 # Match CurrentRole with job categories:
 
 # - Allrounder (if more than one job category is specified)
@@ -302,7 +344,7 @@ df2 <- df1 %>%
   mutate(Job = as.factor(Job))
 ```
 
-```{r, echo=FALSE, results=FALSE}
+```{r, cache=TRUE, echo=FALSE, results=FALSE}
 # Define industries:
 airline <- c("line", "air", "wings", "ryanair", "easyjet", "jet", "fly", "flight")
 yachting <- c("yach", "boat", "chart", "ship", "crew", "sail", "ocean", "farry",
@@ -336,6 +378,31 @@ df3 <- df2 %>%
            TRUE)) == TRUE,"airline", "Other"))))))) %>%
   mutate(Industry = as.factor(Industry))
 ```
+
+\subsubsection{Extending the Dataset}
+
+Some of the identified issues of the dataset are that the number of relevant predictors is quite low and that the set does not include a lot of continuous variables. Therefore, extending the dataset with additional data might be beneficial for the performance of our models.
+In order to extend the dataset with further predictors, we identified the variable \textit{Country} as the most suitable connecting factor: It presents the possibility to investigate whether or not specific characteristics of the candidate’s country of origin contribute to the star rating. 
+Subsequently, we gathered data into the csv [additional_data.csv](./additional_data.csv), which adds the following factors to every country:
+\begin{itemize}
+\item \textit{Region}: We decided to group the countries into the 4 Main economic sales regions EMEA (Europe, Middle East and Africa), North America, LATAM (Latin America) and APAC (Asia and Pacific)
+\item \textit{Pop}: Total population \cite{worldometers}
+\item \textit{Coastline}: The Coastline of a country in km. Source of this data is the World Resources Institute \cite{WRI}
+\item \textit{CoastRatio}: The ratio of coastline per land area of a country (in meters coastline per square kilometer land area) \cite{WRI}
+\item \textit{Happiness (Report)}: A country’s score in the World Happiness Report in 2019. \cite{WHR} This report does not include all countries, therefore we later inserted the economic region’s average for NA values
+\item \textit{GDPpC}: Gross Domestic Product of a country divided by the population (data from 2020) \cite{WorldGDP}
+\end{itemize}
+
+By matching the country name in this table to the country name used by the M Yachts Data, we were able to join the country data to the dataset. 
+
+In a second step, we repeated the same process with Tourism Data from the World Bank Group \cite{WDI}, since we believe that the extent of a country’s tourism sector could have an effect on the quality of their yachting services. We added three further variables to the dataset gathererd in the csv [tourism_data_edited.csv](./tourism_data_edited.csv):
+\begin{itemize}
+\item \textit{Tourists}: Number of arriving tourists per year
+\item \textit{Price level}: Purchasing power parity (PPP) adjusted price level
+\end{itemize}
+To smooth out short-term fluctuations we took an average value of the years 2019,2020 and 2021 for each variable. 
+
+These new variables present the opportunity to look at the potential circumstances of a candidate regarding the yachting industry. We chose the new variables by potential influence on the performance of a country’s inhabitants on their ability to work in yachting. For example, it is possible that countries with a higher ratio of coastline are more suited for bringing up excellent yachting employees.
 
 ```{r, echo=FALSE, results=FALSE}
 # Read in addional data frame
@@ -372,26 +439,11 @@ additional_data <- read.csv("additional_data.csv", na.strings = c("", "NA", "N/A
 # summary(additional_data)
 
 # Merge data
-df4 <- inner_join(df3, additional_data, by = "Country")
-```
-
-```{r, echo=FALSE, results=FALSE}
-# Select variables of interest and remove NA's
-
-# Selection
-df5 <- df4# %>%
-  #select(StarRating, CurrentCompany, CurrentRole, Country, Region,
-         #Happiness, Coastline, CoastRatio, TalentSource, 
-         #Pop, ExperienceYears, CvStrength, Job, Industry)
-# Remove NAs
+df5 <- inner_join(df3, additional_data, by = "Country")
 df6 <- na.omit(df5)
 ```
 
 ```{r, echo=FALSE, results=FALSE}
-#summary(df5$Job) #including two new variables provided by MYachts (esp. Experience) reduces n by ~500
-```
-
-```{r}
 # Add new variables such as tourism (obtained from WDI)
 # Merge with previous dataset
 Tourism_df <- read.csv("tourism_data_edited.csv", na.strings = c("..", ""), sep=",") %>%
@@ -420,8 +472,6 @@ Tourism_avg <- Tourism_df %>%
 # Merge Tourism data with previous dataset
 df7 <- inner_join(df6, Tourism_avg, by = "Country")
 setdiff(df5$Country, Tourism_avg$Country)
-
-        
 ```
 
 ```{r, echo=FALSE, results=FALSE}
@@ -444,9 +494,35 @@ df9 <- df8 %>%
 
 #Remove NAs
 df10 <- na.omit(df9)
-  
 ```
 
+```{r}
+#Removing outliers
+#Write function for outliers
+outliers <- function(x) {
+
+  Q1 <- quantile(x, probs=.25)
+  Q3 <- quantile(x, probs=.75)
+  iqr = Q3-Q1
+
+ upper_limit = Q3 + (iqr*1.5)
+ lower_limit = Q1 - (iqr*1.5)
+
+ x > upper_limit | x < lower_limit
+}
+
+remove_outliers <- function(df, cols = names(df)) {
+  for (col in cols) {
+    df <- df[!outliers(df[[col]]),]
+  }
+  df
+}
+#Apply function to dataframe
+df10 <- remove_outliers(df10, c("ExperienceYears"))
+
+#Control new length of dataframe
+nrow(df10)
+```
 \subsection{Exploratory Data Analysis (EDA)}
 
 EDA involves analyzing and summarizing the characteristics of a dataset, identifying patterns and anomalies, and visualizing the data to gain insights. This helps to understand the given data and identify any potential issues that may affect the accuracy of the used models. 
@@ -467,7 +543,6 @@ basic_eda <- function(data)
 
 basic_eda(df10)
 ```
-
 
 #Check correlations
 ```{r, echo=FALSE}
@@ -497,6 +572,8 @@ df11 <- df10%>%
 #Lowest rating: Unemployed
 n_job <- df10 %>%
   count(Job)
+
+df10$StarRating <- as.numeric(df10$StarRating)
 
 descriptive_rating_per_job <- df10 %>%
   group_by(Job) %>%
@@ -717,7 +794,15 @@ rating_job_country <- rating_job_country %>%
 To really understand what machine learning methods are used and how they work, it is important to first understand what machine learning is: 
 Machine learning is a subfield of artificial intelligence that involves the development of algorithms and models that can learn from and make predictions or decisions based on data. These algorithms and models are able to improve their performance over time as they are exposed to more data.
 
-In machine learning, algorithms are trained on a dataset, which consists of a collection of examples that include input data and the corresponding correct output. The algorithm uses this training data to learn how to map the input data to the correct output. Once the algorithm has learned from the training data, it can then be applied to new, unseen data to make predictions or decisions.
+In machine learning, algorithms are trained on a dataset, which consists of a collection of examples that include input data and the corresponding correct output. The algorithm uses this training data to learn how to map the input data to the correct output. Once the algorithm has learned from the training data, it can then be applied to new, unseen data to make predictions or decisions. In the following, we split the wrangled data with the odds \textit{80:20} into training and testing data, respectively.
+
+```{r , cache = TRUE, echo=FALSE, message=FALSE, results=FALSE}
+df10$StarRating <- as.factor(df10$StarRating)
+set.seed(1234)
+df_split <- initial_split(df10 , prop = 0.8)
+df_train <- training(df_split)
+df_test <- testing(df_split)
+```
 
 There are several different types of machine learning, including supervised learning and unsupervised learning. Supervised learning involves training an algorithm on labeled data, where the correct output is provided for each example in the training data. Unsupervised learning comprises training an algorithm on unlabeled data, where the algorithm must discover the underlying structure of the data on its own.
 
@@ -728,6 +813,12 @@ In supervised learning, the training data consists of a set of input-output pair
 Examples of supervised learning tasks include classification, where the goal is to predict a class label for a given input data, and regression, where the objective is to predict a continuous output value.
 
 Supervised learning is widely used in many applications, such as image classification, spam detection, and stock price prediction. It is a powerful tool for solving problems that require the prediction of a specific output value based on input data.
+
+To improve the performance of the different models cross-validation is used during for each of the following models. 
+
+Cross-validation is a resampling procedure used to evaluate the performance of a machine learning model. It involves dividing the dataset into k subsets, training the model on k-1 subsets, and evaluating it on the remaining subset. This process is then repeated k times, with a different subset being used as the evaluation set in each iteration. The final performance metric is then calculated as the average of the performance across all k iterations.
+
+An example for how to build a model in R from scratch, including hyperparameter tuning and using cross validation will be shown in section 3.1.3, as XGBoosting is one of our most complex models.
 
 \subsubsection{Classification}
 
@@ -746,11 +837,141 @@ Decision trees are easy to understand and interpret, and they can handle both co
 
 The tree depth is the main parameter in a decision tree. It can be determined by setting a minimum number of data points for a node to get split further, a maximum tree depth, or can be driven by a cost-complexity parameter (used in this application). The cost-complexity parameter is another way to prune the tree, so that it controls the trade-off between the tree’s complexity and accuracy, in other words the trade-off between bias and variance. It is chosen by cross validation to find the value that results in the best performance on the test data.
 
-!Cost complexity Parameter!
+```{r Decision Tree, cache=TRUE, echo = FALSE, message = FALSE}
+
+class_tree_spec <- decision_tree() %>%
+  set_engine( "rpart" ) %>% 
+  set_mode("classification")
+
+#create recipe
+class_tree_recipe <- 
+  recipe( formula = StarRating ~ ., data = df_train ) %>% 
+  step_novel( all_nominal_predictors() ) %>% 
+  step_dummy( all_nominal_predictors() ) %>% 
+  step_zv( all_predictors() )
+
+#create workflow
+class_tree_wf <- workflow() %>%
+  add_model( class_tree_spec %>% set_args(cost_complexity = tune() )) %>%
+  add_recipe( class_tree_recipe )
+
+# K-fold cross validation
+df_fold <- vfold_cv( df_train )
+
+# Grid with values
+param_grid <- grid_regular( cost_complexity( range = c( -3, -1 )), levels = 10 )
+
+# Tuning
+tune_res <- tune_grid(
+  class_tree_wf, 
+  resamples = df_fold, 
+  grid = param_grid, 
+  metrics = metric_set( accuracy )
+)
+
+# Select best value
+best_complexity <- select_best( tune_res )
+
+# Finalize workflow with best value
+class_tree_final <- finalize_workflow( class_tree_wf, best_complexity )
+
+# Fit final model
+class_tree_final_fit <- fit( class_tree_final, data = df_train )
+
+best_complexity
+```
 
 \subsubsection{Extreme Gradient Boosting XGBoosting}
 
-!Tabelle mit Tuning Parametern die gewählt wurden!
+The XGBoosting algorithm was invented by Tianqi Chen in 2014 and is one of the most used machine learning methods nowadays. It is an implementation of gradient boosting to make the algorithm more efficient and accurate.
+
+To understand the XGBoosting algorithm it is necessary to understand the basic concepts of boosting and its specific type gradient boosting. Boosting is a method of combining a set of weak learners into a single strong learner. Boosting works by training weak learners sequentially, with each learner being trained to correct the mistakes made by the previous learner. The final model is a weighted sum of the weak learners, with the weights determined by the performance of each learner on the training data.[ISLR]
+
+Gradient boosting is a specific type of boosting, which uses gradient descent instead of the two-step process explained above for training the weak learners. The key adjustments of XGBoosting are that it uses advanced regularisations and parallel-processing. This makes the model more robust to overfitting and improves its efficiency.
+
+As extreme gradient boosting is one of our most complex models the following part will describe, how to set up an XGBoost algorithm in R, also as an example for all other methods.
+
+First, we are specifying the model. To do that, we are using the \textit{boost_tree()} function of the \textit{parsnip} package. To classify that we are using extreme gradiant boosting, the engine is set to \textit{xgboost} and as we are using it as a classifier the mode is set to \textit{classification}. XGBoost requires many arguments to be set, we are choosing the following hyperparameters by tuning with cross validation:
+\begin{itemize}
+\item \textit{trees}≙ An integer for the number of trees contained in the ensemble
+\item \textit{tree_depth}≙ An integer for the maximum depth of the tree
+\item \textit{min_n}≙ An integer for the minimum number of data points in a node that is required for the node to be split further
+\item \textit{loss_reduction}≙ A number for the reduction in the loss function required to split further
+\item \textit{sample_size}≙ A proportion of data that is exposed to the fitting routine, which is done at each iteration
+\item \textit{mtry}≙ A proportion of predictors that will be randomly sampled at each split when creating the tree models
+\item \textit{learn_rate}≙ A number for the rate at which the boosting algorithm adapts from iteration-to-iteration
+\end{itemize}
+```{r, cache=TRUE}
+xgb_spec <- boost_tree(
+  trees = tune(), 
+  tree_depth = tune() , min_n = tune(), 
+  loss_reduction = tune(),                     
+  sample_size = tune(), mtry = tune(),         
+  learn_rate = tune(),                         
+) %>% 
+  set_engine( "xgboost" ) %>% 
+  set_mode( "classification" )
+```
+
+Second, a grid of hyperparameter values for our XGBoost model using the \textit{grid_latin_hypercube()} function from the \textit{tune} package is defined. The \textit{grid_latin_hypercube()} function generates a grid of hyperparameter values using Latin Hypercube sampling, which is a method of randomly sampling a set of points such that each dimension is evenly covered:
+```{r, cache=TRUE}
+xgb_grid <- grid_latin_hypercube(
+  trees(),
+  tree_depth(),
+  min_n(),
+  loss_reduction(),
+  sample_size = sample_prop(),
+  finalize(mtry(), df_train),
+  learn_rate(),
+  size = 100
+)
+```
+
+Third, we are creating a recipe for preprocessing data. Here \textit{StarRating} is our output variable and all other variables are our features. We are training the algorithm on the training data set \textit{df_train}. The \textit{step_novel()} function is used to identify which of the nominal predictor variables have not been seen in the training data before. These "novel" levels will be treated as a separate category when the recipe is baked. The \textit{step_dummy()} function creates dummy variables for all of the nominal predictor variables. The \textit{step_zv()} function standardizes all of the predictor variables by subtracting the mean and dividing by the standard deviation: 
+```{r, cache=TRUE}
+xgb_recipe <- 
+  recipe( formula = StarRating ~ ., data = df_train ) %>% 
+  step_novel( all_nominal_predictors() ) %>% 
+  step_dummy( all_nominal_predictors() ) %>% 
+  step_zv( all_predictors() )
+```
+
+As a next step we are defining our workflow and setting up 10-fold cross validation to improve the model performance:
+```{r, cache=TRUE}
+xgb_wf <- workflow() %>%
+  add_recipe( xgb_recipe ) %>%
+  add_model( xgb_spec )
+df_fold <- vfold_cv(df_train, 10)
+```
+
+To tune the model we are using the \textit{doParallel::registerDoParallel()} function to set up parallel processing. This can be used to speed up the training and evaluation process by allowing multiple models to be trained and evaluated at the same time.
+The \textit{tune_grid()} function will train and evaluate our XGBoost model with each combination of hyperparameters in the \textit{xgb_grid} object, using the resamples from cross validation defined above:
+```{r, cache=TRUE}
+doParallel::registerDoParallel()
+xgb_res <- tune_grid(
+  xgb_wf,
+  resamples = df_fold,
+  grid = xgb_grid,
+  control = control_grid(save_pred = TRUE)
+)
+```
+
+
+Next, we are selecting the best combination of hyperparameter values to reach the highest accuracy, by using the \textit{select_best()} function and setting the metric to "accuracy":
+```{r, cache=TRUE}
+best_acc <- select_best( xgb_res, "accuracy" )
+best_acc
+```
+
+Final, the workflow gets finalised by adding the optimal hyperparameter values to the predefined workflow and fitting the model to the training data set \textit{df_train}:
+```{r, cache=TRUE}
+xgb_final <- finalize_workflow(
+  xgb_wf,
+  best_acc
+)
+xgb_final_fit <- fit( xgb_final, data = df_train )
+```
+
 
 \subsubsection{Random Forest}
 
@@ -758,17 +979,126 @@ The random forest algorithm is one of the most famous and widely used machine le
 
 To construct a random forest, many decision trees are trained on bootstrapped samples of the training data and a random subset of the features. The final prediction is made by averaging the predictions of all the individual decision trees. This averaging process helps to reduce the variance and improve the overall performance of the model. 
 
-As the random forest classifier can handle both continuous and categorical features and is able to predict multiple classes as an output, it is perfectly suited for the decision problem. To run the random forest algorithm there are a few hyperparameters that can be chosen upfront or tuned. The main hyperparameters, when running a random forest algorithm in R are the number of trees the algorithm includes, the number of predictors randomly sampled at each split and the minimum number of data points in a tree node required to split the node further. 
+As the random forest classifier can handle both continuous and categorical features and is able to predict multiple classes as an output, it is perfectly suited for the decision problem. To run the random forest algorithm there are a few hyperparameters that can be chosen upfront or tuned. The main hyperparameters, when running a random forest algorithm in R are the number of trees the algorithm includes, the number of predictors randomly sampled at each split and the minimum number of data points in a tree node required to split the node further. We predefined the number of trees at 1000, as there is no big increase in the model performance with tuning the number of trees and it takes high computational costs.
 
 In this application the hyperparameters are tuned using 10-fold cross validation. 
-This means the data is split into 10 folds, and the model is trained and evaluated on different subsets of the training data. This allows for a more robust evaluation of the model’s performance, as it is tested on a variety of different data points.
+This means the data is split into 10 folds, and the model is trained and evaluated on different subsets of the training data. This allows for a more robust evaluation of the model’s performance, as it is tested on a variety of different data points. The final tuning results are shown beneath:
+```{r RandomForest, cache=TRUE, echo=FALSE,message=FALSE}
+set.seed(1234)
+# Create recipe
+rf_recipe <- 
+  recipe( formula = StarRating ~ ., data = df_train ) %>% 
+  step_novel( all_nominal_predictors() ) %>% 
+  step_dummy( all_nominal_predictors() ) %>% 
+  step_zv( all_predictors() )
+# Tune specifications and set number of trees to 1000
+rf_tune_spec <- rand_forest(
+  mtry = tune(),
+  trees = 1000,
+  min_n = tune()
+) %>%
+  set_mode( "classification" ) %>%
+  set_engine( "randomForest" )
+
+# Create workflow
+rf_tune_wf <- workflow() %>%
+  add_recipe( rf_recipe ) %>%
+  add_model( rf_tune_spec )
+
+# Do cross validation
+df_fold <- vfold_cv( df_train,10 )
+
+# Create a more specific grid with setting the mtry between 2 and 13 
+rf_grid <- grid_regular(
+  mtry(range = c (2,13)), 
+  min_n(),
+  levels = 20
+)
+
+# Tune again
+doParallel::registerDoParallel()
+rf_regular_res <- tune_grid(
+  rf_tune_wf,
+  resamples = df_fold,
+  grid = rf_grid
+)
+
+# Select best a value
+best_acc <- select_best( rf_regular_res, metric = "accuracy" )
+best_acc
+# Finalize the workflow with best value
+rf_final <- finalize_workflow( rf_tune_wf, best_acc )
+
+# Fit final model
+rf_final_fit <- fit( rf_final, data = df_train )
+```
 
 \subsubsection{Naive Bayes}
 
-Naive Bayes is a simple and effective probabilistic classifier based on applying Bayes' theorem with strong independence assumptions (naive) between the individual predictors. As it can be used as a multiclass classifier and is able to handle continuous and categorical data as features 
-
 In the context of machine learning, naive Bayes can be used to classify data points based on their features. The algorithm makes the assumption that the features are independent of one another, which is known as the "naive" assumption. This assumption simplifies the calculations and allows the algorithm to be implemented efficiently.
-To classify a new data point, the algorithm calculates the probability of the data point belonging to each class. The class with the highest probability is chosen as the prediction for the data point. The probability is calculated based on the prior probability of the class and the likelihood of the features given the class.
+
+To classify a new data point, the algorithm calculates the probability of the data point belonging to each class. The class with the highest probability is chosen as the prediction for the data point. The probability is calculated based on the prior probability of the class and the likelihood of the features given the class. 
+
+```{r Naive Bayes, cache=TRUE, echo = FALSE, message=FALSE, results=FALSE}
+set.seed(42)
+
+#Tuning
+nb_grid <-   expand.grid(usekernel = TRUE,
+                         laplace = c(0, 0.5, 1, 1.5, 2, 2.5), 
+                         adjust = c(0.75, 1, 1.25, 1.5))
+#Run model
+naive_bayes_via_caret <- train(StarRating ~ ., data = df_train, 
+                               method = "naive_bayes",
+                               usepoisson = TRUE,
+                               tuneGrid = nb_grid)
+#Model output
+naive_bayes_via_caret
+
+# Visualize the tuning process
+plot(naive_bayes_via_caret)
+
+# Perform classification 
+predictions <- data.frame(predict(naive_bayes_via_caret, newdata = df_test))
+comp_pred_true <-table(predictions, df_test$StarRating)
+```
+
+\subsubsection{K-nearest-neighbours}
+
+The k-nearest neighbour (KNN) classifier is a simple and effective method for classification. In brief summary it works by finding the k data points in the training set that are closest to the input data (by a chosen metric), and then it uses those k data points to determine the output value, by choosing the class the most k neighbours are part of. One of the benefits of the KNN algorithm is that it is simple and easy to implement. It also does not make any assumptions about the underlying data distribution, so it can handle non-linear relationships well.
+
+The algorithm can be sensitive to the choice of k and the distance metric. The provided implementation in R uses the Euclidean distance by default. We choose to use a for loop to iterate over different integer values of k (from 1 to 30) to plot the following elbow plot and chose the optimal k value.
+
+```{r KNN, cache=TRUE, echo=FALSE , message=FALSE}
+# Create recipe for KNN and normalize the numeric predictors
+rec_spec <- recipe( StarRating ~ . , data= df_train ) %>%
+  step_normalize( all_numeric_predictors() )
+
+#Define the range k and create empty vectors for the for loop
+  k_range <- 1:30
+  predictions <- NA
+  test_acc <- NA
+
+#Creating a for loop do evaluate the model performance for different values of k
+for (i in k_range) {
+  k <- k_range[i]
+  knn_spec1 <- nearest_neighbor(neighbors = k) %>%
+    set_mode("classification") %>%
+    set_engine("kknn")
+  lm_wf1 <- workflow() %>%
+    add_model( knn_spec1 ) %>%
+    add_recipe( rec_spec )
+  knn_m <- lm_wf1 %>% fit(df_train)
+  predictions[k] <- predict(knn_m, df_test)
+  test_acc[k] <- mean(predictions[[k]] == df_test$StarRating)
+}
+
+#create a data frame with the different values of k and the underlying accuracies on the test data set
+df_acc_knn <- data.frame("k"=c(1:30),test_acc)
+
+#plot the test accuracy against the differnet values of k
+ggplot(df_acc_knn, aes(k, test_acc))+geom_line()+ggtitle("Elbow Plot") 
+
+```
 
 \subsubsection{Other Classification Algorithms}
 
