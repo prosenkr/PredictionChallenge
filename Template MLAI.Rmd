@@ -101,16 +101,7 @@ summary(mycrew)
 
 \subsection{Variables of Interest}
 
-To optimise the model's performance we filter variables that are not suitable as predictors. Therefore, we obtained an overview of the raw data by examining each variable and checking for correlations between the variables and the outcome \textit{StarRating}. This leads to the exclusion of 15 variables, including variables we do not consider to be causally related to the Star Rating (\textit{WorkerID, IsTempProfile, WorkerJobSearchStatus, ConnectionPipelineStatus, ProfileAddedAt, ProfileAddedBy, TalentPoolCount}), variables that contain mostly missing data (\textit{RecruiterMessage, WorkerMessage, TotalResponseRate, LastCommunicatedAt, LastCommunicatedBy}) and variables about the origin of the people that are too specific and will be represented by the variable \textit{Country} (\textit{State, City, Postcode}). This leaves us with the following variables to predict the \textit{StarRating}:
-
-\begin{itemize}
-\item \textit{CurrentCompany}
-\item \textit{CurrentRole}
-\item \textit{Country}
-\item \textit{TalentCommunitySource}
-\item \textit{ExperienceYears}
-\item \textit{CvStrength}
-\end{itemize}
+To optimise the model's performance we filter variables that are not suitable as predictors. Therefore, we obtained an overview of the raw data by examining each variable and checking for correlations between the variables and the outcome \textit{StarRating}. This leads to the exclusion of 15 variables, including variables we do not consider to be causally related to the Star Rating (\textit{WorkerID, IsTempProfile, WorkerJobSearchStatus, ConnectionPipelineStatus, ProfileAddedAt, ProfileAddedBy, TalentPoolCount}), variables that contain mostly missing data (\textit{RecruiterMessage, WorkerMessage, TotalResponseRate, LastCommunicatedAt, LastCommunicatedBy}) and variables about the origin of the people that are too specific and will be represented by the variable \textit{Country} (\textit{State, City, Postcode}). This leaves us with the four character variables \textit{CurrentCompany}, \textit{CurrentRole}, \textit{Country} and \textit{TalentCommunitySource} and two integer variables \textit{ExperienceYears} and \textit{CvStrength} of our selected dataset (see Figure 1).
 
 ```{r, echo=FALSE, results=FALSE}
 # Mutate StarRating into numeric
@@ -134,15 +125,14 @@ sort(colSums(is.na(mycrew)))
 
 \subsection{Data Wrangling}
 
-Data Wrangling is referred to as "the process of gathering, selecting, and transforming data to answer an analytical question" \cite{elderresearch}, which in our case results in a prepared dataframe [df] used for machine learning models (see Figure 1).
-Specifically, we transform our raw dataset by mutating relevant variables and by converting categorial variables to factors and numeric variables to numeric values. With data enrichment we aim to expand the scope and context of our analysis and potentially improve the accuracy of the prediction.
+Data Wrangling is referred to as "the process of gathering, selecting, and transforming data to answer an analytical question" \cite{elderresearch}, which in our case results in a prepared dataframe [df] used for various machine learning models (see Figure 1). Specifically, we transform our raw dataset by mutating relevant variables and by converting categorial variables to factors and numeric variables to numeric values. With data enrichment we aim to expand the scope and context of our analysis and potentially improve the accuracy of the prediction.
 
 \begin{figure}
   \includegraphics{DataWranglingFig.pdf}
   \caption{Data Wrangling Process}
 \end{figure}
 
-The original variable \textit{TalentCommunitySource} is transformed so that its attributes are unified into "LinkedIn","Indeed","Google","my-crew.com" and "Other" and saved as \textit{TalentSource}. The variables \textit{CurrentRole} and \textit{CurrentCompany} are matched with job, respectively industry categories by specifying a list of keywords for each category and filtering the attributes that contain those keywords. Therefore, we use ifelse statements including the grepl function (Code is included in the RMD file).
+The original variable \textit{TalentCommunitySource} is transformed so that its attributes are unified into "LinkedIn","Indeed","Google","my-crew.com" and "Other" and saved as \textit{TalentSource}. The variables \textit{CurrentRole} and \textit{CurrentCompany} are matched with job, respectively industry categories by specifying a list of keywords for each category and filtering the attributes that contain those keywords. Therefore, we use ifelse statements including the grepl function.
 
 To get an overview of different categories in both columns, we first performed the unsupervised method of k-means clustering by transforming the words into numeric values and finding clusters within those words. By plotting the "Within groups sum of squares" we identified 11 means for the clustering (see Figure 2). This way we found clusters such as "Head Chef", "Manager" or "Director" for \textit{CurrentRole}. With those insights we classified the variable into the following groups:
 
@@ -240,6 +230,7 @@ df_jobs$cluster[df_jobs$cluster == 11] <- "Assistant"
 
 ```{r, echo=FALSE, results=FALSE}
 # Match CurrentRole with job categories:
+
 # - Allrounder (if more than one job category is specified)
 # - Captain
 # - Deckhand
@@ -312,7 +303,7 @@ df2 <- df1 %>%
 ```
 
 ```{r, echo=FALSE, results=FALSE}
-# Define industries
+# Define industries:
 airline <- c("line", "air", "wings", "ryanair", "easyjet", "jet", "fly", "flight")
 yachting <- c("yach", "boat", "chart", "ship", "crew", "sail", "ocean", "farry",
               "coast", "cruise", "wave", "motor", "acht", "yac", "yate", "barco",
@@ -345,12 +336,6 @@ df3 <- df2 %>%
            TRUE)) == TRUE,"airline", "Other"))))))) %>%
   mutate(Industry = as.factor(Industry))
 ```
-
-\subsection{Exploratory Data Analysis (EDA)}
-
-EDA involves analyzing and summarizing the characteristics of a dataset, identifying patterns and anomalies, and visualizing the data to gain insights. This helps to understand the given data and identify any potential issues that may affect the accuracy of the used models. 
-
--> end with an outlook: In summary, the dataset does not appear perfectly suited for the prediction task. First of all, there is a There are only few continuous variables that can be directly attributed to the 
 
 ```{r, echo=FALSE, results=FALSE}
 # Read in addional data frame
@@ -406,7 +391,7 @@ df6 <- na.omit(df5)
 #summary(df5$Job) #including two new variables provided by MYachts (esp. Experience) reduces n by ~500
 ```
 
-```{r, echo=FALSE, results=FALSE}
+```{r}
 # Add new variables such as tourism (obtained from WDI)
 # Merge with previous dataset
 Tourism_df <- read.csv("tourism_data_edited.csv", na.strings = c("..", ""), sep=",") %>%
@@ -435,11 +420,13 @@ Tourism_avg <- Tourism_df %>%
 # Merge Tourism data with previous dataset
 df7 <- inner_join(df6, Tourism_avg, by = "Country")
 setdiff(df5$Country, Tourism_avg$Country)
+
+        
 ```
 
 ```{r, echo=FALSE, results=FALSE}
 # Reduce number of countries (if n(Country) < 10 --> "Other")
-frequent_countries <- df7 %>%
+frequent_countries <- df6 %>%
   group_by(Country) %>%
   count()
 
@@ -447,14 +434,282 @@ df8 <- left_join(df7, frequent_countries, by = "Country")
 
 df9 <- df8 %>%
   mutate(Country_edited = ifelse(n < 10, "Other", as.character(Country)),
-         Country_edited = as.factor(Country_edited)) %>%
+         Country_edited = as.factor(Country_edited),
+         Tourists_pop = meanTourists / Pop,
+         Tourists_coast = meanTourists / Coastline) %>%
   select(Job, StarRating, Industry, Country_edited,
          Region, Happiness, Coastline, CoastRatio, TalentSource, Pop, 
          ExperienceYears, CvStrength, HighPerformer, Leader,
-         meanGDPpC, meanTourists, meanPriceLevel)
+         meanGDPpC, meanTourists, Tourists_coast, Tourists_pop, meanPriceLevel)
 
 #Remove NAs
 df10 <- na.omit(df9)
+  
+```
+
+\subsection{Exploratory Data Analysis (EDA)}
+
+EDA involves analyzing and summarizing the characteristics of a dataset, identifying patterns and anomalies, and visualizing the data to gain insights. This helps to understand the given data and identify any potential issues that may affect the accuracy of the used models. 
+
+-> end with an outlook: In summary, the dataset does not appear perfectly suited for the prediction task. First of all, there is a There are only few continuous variables that can be directly attributed to the 
+
+#Exploratory data analysis
+```{r, echo=FALSE}
+basic_eda <- function(data)
+{
+  glimpse(data)
+  print(status(data))
+  freq(data) 
+  print(profiling_num(data))
+  plot_num(data)
+  describe(data)
+}
+
+basic_eda(df10)
+```
+
+
+#Check correlations
+```{r, echo=FALSE}
+library(corrplot)
+df11 <- df10%>%
+  select(StarRating, meanGDPpC, Happiness, ExperienceYears, CvStrength, Pop, 
+         HighPerformer, Leader, Coastline, CoastRatio, meanTourists, meanPriceLevel,
+         Tourists_pop, Tourists_coast)
+  
+  ggcorr(df11, label = TRUE)
+  
+```
+
+#Highest rating: Engineer and Captain
+#Lowest rating: Unemployed
+--------------------------------------
+#Highest experience: Captain, Engineer
+#Lowest experience: Deckhand
+--------------------------------------
+#Highest CV score: Engineer
+#Lowest CV score: Steward
+--------------------------------------
+#Rating and experience are moderately correlated (0.45)
+```{r, echo=FALSE}
+#StarRating per job category
+#Highest rating: Engineer and Captain
+#Lowest rating: Unemployed
+n_job <- df10 %>%
+  count(Job)
+
+descriptive_rating_per_job <- df10 %>%
+  group_by(Job) %>%
+  summarise(meanRating = mean(StarRating),
+            minRating = min(StarRating),
+            maxRating = max(StarRating),
+            sdRating = sd(StarRating)) %>%
+  arrange(desc(meanRating)) %>%
+  select(Job, meanRating, minRating, maxRating, sdRating)
+
+(rating_per_job <- left_join(descriptive_rating_per_job, n_job, by= "Job"))
+
+#Visualize
+ggplot(rating_per_job, aes(Job, meanRating))+
+  geom_bar(stat = "identity")
+
+ggplot(df10, aes(Job, StarRating))+
+  geom_boxplot()
+
+#Experience per job category
+#Highest experience: Captain, Engineer
+#Lowest experience: Deckhand
+descriptive_exp_per_job <- df10 %>%
+  group_by(Job) %>%
+  summarise(meanExp = mean(ExperienceYears),
+            minExp = min(ExperienceYears),
+            maxExp = max(ExperienceYears),
+            sdExp = sd(ExperienceYears)) %>%
+  arrange(desc(meanExp)) %>%
+  select(Job, meanExp, minExp, maxExp, sdExp)
+(exp_per_job <- left_join(descriptive_exp_per_job, n_job, by="Job"))
+
+#CvStrength per job category
+#Highest: Engineer
+#Lowest: Steward
+descriptive_cv_per_job <- df10 %>%
+  group_by(Job) %>%
+  summarise(meanCvStrength = mean(CvStrength),
+            minCvStrength = min(CvStrength),
+            maxCvStrength = max(CvStrength),
+            sdCvStrength = sd(CvStrength)) %>%
+  arrange(desc(meanCvStrength)) %>%
+  select(Job, meanCvStrength, minCvStrength, maxCvStrength, sdCvStrength)
+(cv_per_job <- left_join(descriptive_cv_per_job, n_job, by="Job"))
+
+#Find correlations for jobs
+join1 <- inner_join(rating_per_job, descriptive_exp_per_job, by = "Job")
+(total_job_ratings <- inner_join(join1, descriptive_cv_per_job, by = "Job"))
+#Rating and experience are moderately correlated (0.45)
+cor(total_job_ratings$meanRating,total_job_ratings$meanExp)
+cor(total_job_ratings$meanRating, total_job_ratings$meanCvStrength)
+cor(total_job_ratings$meanExp, total_job_ratings$meanCvStrength)
+
+
+```
+#Rating of high performer lower than no high performer
+#same for leader
+```{r, echo=FALSE}
+#Mean rating of high performer
+descriptive_high_performer <- df10 %>%
+  group_by(HighPerformer) %>%
+  summarise(meanRating = mean(StarRating)) %>%
+  arrange(desc(meanRating)) %>%
+  select(HighPerformer, meanRating)
+
+#Count number of HighPerformer
+n_hp <- df10 %>%
+  count(HighPerformer)
+(rating_high_performer <- inner_join(descriptive_high_performer, n_hp, by = "HighPerformer"))
+
+
+#Mean rating of leader
+descriptive_leader <- df10 %>%
+  group_by(Leader) %>%
+  summarise(meanRating = mean(StarRating)) %>%
+  arrange(desc(meanRating)) %>%
+  select(Leader, meanRating)
+
+#Count number of leader
+n_leader <- df10 %>%
+  count(Leader)
+(rating_leader <- inner_join(descriptive_leader, n_leader, by = "Leader"))
+
+```
+
+#Same number of observations in each class of StarRating
+```{r}
+#Distribution of rankings
+distr_of_ratings <- df10 %>%
+  mutate(StarRating = as.factor(StarRating))
+summary(distr_of_ratings$StarRating)
+```
+#Short: Candidates from yachting industry have superior rating, exp and cv score
+#Highest rating in         yachting industry
+#Highest CvStrength in     yachting industry
+#Highest experience have   freelancers (2. defence, 3. yachting)
+```{r}
+#Count number of industry
+n_indusry <- df10 %>%
+  count(Industry)
+
+#Rating per industry
+descriptive_industry_rating <- df10 %>%
+  group_by(Industry) %>%
+  summarise(meanRating = mean(StarRating)) %>%
+  arrange(desc(meanRating)) %>%
+  select(Industry, meanRating)
+(rating_industry <- inner_join(descriptive_industry_rating, n_indusry, by = "Industry"))
+
+#Experience per industry
+descriptive_industry_exp <- df10 %>%
+  group_by(Industry) %>%
+  summarise(meanExp = mean(ExperienceYears)) %>%
+  arrange(desc(meanExp)) %>%
+  select(Industry, meanExp)
+(exp_industry <- inner_join(descriptive_industry_exp, n_indusry, by = "Industry"))
+
+#CvStrength per industry
+descriptive_industry_cv <- df10 %>%
+  group_by(Industry) %>%
+  summarise(meanCV = mean(CvStrength)) %>%
+  arrange(desc(meanCV)) %>%
+  select(Industry, meanCV)
+(rating_industry <- inner_join(descriptive_industry_cv, n_indusry, by = "Industry"))
+```
+
+#Short: Experience in yachting seems to increase the rating over all jobs 
+#       except for engineers
+#Best rating for chefs with experience in yachting
+#Best rating for captains with experience in freelance, defence, yachting
+#Best rating for deckhand with experience in yachting (place 1 ignored since n=1)
+#Best rating for steward with experience in airline, yachting
+#Best rating for chefs with experience in yachting (place 1 ignored since n=1)
+#Best rating for engineers with experience in "Other"
+#Best rating for others with experience in hotel and yachting
+```{r}
+#Are experience in yachting industry beneficial for every job?
+job_and_industry <- df10 %>%
+  group_by(Job, Industry) %>%
+  summarise(meanRating = mean(StarRating)) %>%
+  arrange(desc(meanRating)) %>%
+  select(Job, Industry, meanRating)
+
+n_job_and_industry <- df10 %>%
+  group_by(Job) %>%
+  count(Industry)
+
+rating_job_industry <- inner_join(job_and_industry, n_job_and_industry, by = c("Job", "Industry"))
+
+#Chefs with yachting experience have better ratings
+rating_job_industry %>%
+  filter(Job == "Chef")
+
+#Engineer's rating does not depend on industry expertise
+rating_job_industry %>%
+  filter(Job == "Engineer")
+
+#Most captains have yachting experience as expected (many others couldn't be filtered)
+rating_job_industry %>%
+  filter(Job == "Captain")
+
+#Yachting experience beneficial for rating
+rating_job_industry %>%
+  filter(Job == "Deckhand")
+
+#Same as Deckhand, but best rating with airline experience
+rating_job_industry %>%
+  filter(Job == "Steward")
+
+#Yachting industry again beneficial
+rating_job_industry %>%
+  filter(Job == "Allrounder")
+
+#For unknown job categories, the best ratings are found in hotel and yachting
+rating_job_industry %>%
+  filter(Job == "Other")
+
+```
+
+#Best avg. rating in: Saudi Arabia, South Africa, Phillipines
+#Results unstable since n is dominated by Spain with 273 obs. <---------
+#e.g.: Best captains come from Germany
+
+```{r}
+#Rating per country
+descriptive_country_rating <- df10 %>%
+  group_by(Country_edited) %>%
+  summarise(meanRating = mean(StarRating),
+            minRating = min(StarRating),
+            maxRating = max(StarRating),
+            sdRating = sd(StarRating)) %>%
+  arrange(desc(meanRating)) %>%
+  select(Country_edited, meanRating, minRating, maxRating, sdRating)
+
+n_country <- df10 %>%
+  count(Country_edited)
+
+(rating_countries <- inner_join(descriptive_country_rating, n_country, by= "Country_edited"))
+
+#Job & Country
+job_and_country <- df10 %>%
+  group_by(Job, Country_edited) %>%
+  summarise(meanRating = mean(StarRating)) %>%
+  arrange(desc(meanRating)) %>%
+  select(Job, Country_edited, meanRating)
+
+n_job_and_country <- df10 %>%
+  group_by(Job) %>%
+  count(Country_edited)
+
+rating_job_country <- inner_join(job_and_country, n_job_and_country, by = c("Job", "Country_edited"))
+rating_job_country <- rating_job_country %>%
+  filter(n > 2)
 ```
 
 \section{Methods}
